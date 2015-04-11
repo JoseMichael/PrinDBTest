@@ -1367,32 +1367,21 @@ public class WriteToDisk {
 		return returnList;
 	}
 	
-	public void insertMMRowStorePages(String TableName, MMRowStorePages page)
+	public void insertMMRowStorePages(String TableName, MMRowStorePages page,MetaMMR MetaRows)
 	{
 		List<Schema> list=new ArrayList<Schema>();
-		//for(int i=0;i<16;i++)
-		//{
-		//List<Schema> 
 		
-		String[] id=page.ID;
-		int index=0;
-		for(int i=0; i<id.length-1;i++)
+		for(int index=0; index<16;index++)
 		{
-			if(id[i+1]==null)
+			if(MetaRows.isNewEntry[index]==true)
 			{
-				index=i;
-				break;
+				Schema sc=new Schema();
+				sc.setId(Integer.parseInt(page.ID[index]));
+				sc.setName(page.Name[index]);
+				sc.setPhone(page.PhoneNo[index]);
+				list.add(sc);
 			}
-			else
-				index++;
-		}
-		
-		Schema sc=new Schema();
-		sc.setId(Integer.parseInt(page.ID[index]));
-		sc.setName(page.Name[index]);
-		sc.setPhone(page.PhoneNo[index]);
-		list.add(sc);
-		//}
+		}		
 		
 		if(list.size()>0)
 		{
@@ -1412,238 +1401,6 @@ public class WriteToDisk {
 		}
 	}
 	
-	/*public List<List<String>> getSlottedList(String AttributeName)
-	{
-		
-		List<List<String>> stringList=new ArrayList<List<String>>();
-		
-		int totalSlottedPageCount=0;
-		
-		RandomAccessFile rm;
-		int pageStart,position, myCount,bytecount;
-		byte[] slottedPageNumber,addbuff,idbuff,namebuff,phonebuff;
-		String sltPageNum, addressByte,idVal,nameVal,phoneVal;
-		
-		if(AttributeName.toLowerCase().equals("id"))
-		{
-			try 
-			{
-				File f=new File(id);
-				if(!f.exists())
-				{
-					return null;
-				}
-				else
-				{
-					rm=new RandomAccessFile(id, "r");
-					try 
-					{
-						//start from page 0 and read its contents
-						rm.seek(0);
-						slottedPageNumber=new byte[3];
-						rm.read(slottedPageNumber, 0, slottedPageNumber.length);
-						sltPageNum=new String(slottedPageNumber); 
-						if(sltPageNum.trim().length()>0)
-						{
-							int pageCount=Integer.parseInt(sltPageNum.trim());
-							for(int k=1;k<pageCount;k++)
-							{
-								List<String> slottedPage=new ArrayList<String>();
-								//get the starting address of the page
-								pageStart=calculatePositionOfSlottedPage(k);
-								//get the last byte count for that page
-								position=pageStart+ 508;
-								rm.seek(position);
-								addbuff=new byte[3];
-								rm.read(addbuff, 0, addbuff.length);
-								addressByte=new String(addbuff);
-								if(addressByte.trim().length()>0)
-								{
-									bytecount= Integer.parseInt(addressByte.trim());								
-									myCount=bytecount/4;
-									position=pageStart-1;
-									rm.seek(position);
-									for(int i=0;i<myCount;i++)
-									{			
-										position= pageStart-1 + 4 *i;
-										rm.seek(position);
-										idbuff=new byte[4];
-										rm.read(idbuff, 0, idbuff.length);
-										idVal= new String(idbuff);
-										slottedPage.add(idVal.trim());
-									}
-									stringList.add(slottedPage);
-								}
-
-							}
-							
-							
-						}
-						
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-				}
-					
-				
-				
-				
-				
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-		else
-			if(AttributeName.toLowerCase().equals("name"))
-			{
-				try 
-				{
-					File f=new File(id);
-					if(!f.exists())
-					{
-						return null;
-					}
-					else
-					{
-						rm=new RandomAccessFile(name, "r");
-						try 
-						{
-							//start from page 0 and read its contents
-							rm.seek(0);
-							slottedPageNumber=new byte[3];
-							rm.read(slottedPageNumber, 0, slottedPageNumber.length);
-							sltPageNum=new String(slottedPageNumber); 
-							if(sltPageNum.trim().length()>0)
-							{
-								int pageCount=Integer.parseInt(sltPageNum.trim());
-								for(int k=1;k<pageCount;k++)
-								{
-									List<String> slottedPage=new ArrayList<String>();
-									//get the starting address of the page
-									pageStart=calculatePositionOfSlottedPage(k);
-									//get the last byte count for that page
-									position=pageStart+ 508;
-									rm.seek(position);
-									addbuff=new byte[3];
-									rm.read(addbuff, 0, addbuff.length);
-									addressByte=new String(addbuff);
-									if(addressByte.trim().length()>0)
-									{
-										bytecount= Integer.parseInt(addressByte.trim());								
-										myCount=bytecount/16;
-										position=pageStart-1;
-										rm.seek(position);
-										for(int i=0;i<myCount;i++)
-										{			
-											position= pageStart-1 + 16 *i;
-											rm.seek(position);
-											namebuff=new byte[16];
-											rm.read(namebuff, 0, namebuff.length);
-											nameVal= new String(namebuff);
-											slottedPage.add(nameVal.trim());
-										}
-										stringList.add(slottedPage);
-									}
-
-								}
-								
-								
-							}
-							
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					}
-																								
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
-			else
-				if(AttributeName.toLowerCase().equals("phone"))
-				{
-					try 
-					{
-						File f=new File(id);
-						if(!f.exists())
-						{
-							return null;
-						}
-						else
-						{
-							rm=new RandomAccessFile(phone, "r");
-							try 
-							{
-								//start from page 0 and read its contents
-								rm.seek(0);
-								slottedPageNumber=new byte[3];
-								rm.read(slottedPageNumber, 0, slottedPageNumber.length);
-								sltPageNum=new String(slottedPageNumber); 
-								if(sltPageNum.trim().length()>0)
-								{
-									int pageCount=Integer.parseInt(sltPageNum.trim());
-									for(int k=1;k<pageCount;k++)
-									{
-										List<String> slottedPage=new ArrayList<String>();
-										//get the starting address of the page
-										pageStart=calculatePositionOfSlottedPage(k);
-										//get the last byte count for that page
-										position=pageStart+ 508;
-										rm.seek(position);
-										addbuff=new byte[3];
-										rm.read(addbuff, 0, addbuff.length);
-										addressByte=new String(addbuff);
-										if(addressByte.trim().length()>0)
-										{
-											bytecount= Integer.parseInt(addressByte.trim());								
-											myCount=bytecount/12;
-											position=pageStart-1;
-											rm.seek(position);
-											for(int i=0;i<myCount;i++)
-											{			
-												position= pageStart-1 + 12 *i;
-												rm.seek(position);
-												phonebuff=new byte[12];
-												rm.read(phonebuff, 0, phonebuff.length);
-												phoneVal= new String(phonebuff);
-												slottedPage.add(phoneVal.trim());
-											}
-											stringList.add(slottedPage);
-										}
-
-									}
-									
-									
-								}
-								
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							
-						}
-	
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-					
-				}
-		
-		
-		return stringList;
-		
-	}
-	*/
 	
 	public HashMap<Integer, List<String>> getSlottedList(String TableName, String AttributeName)
 	{
