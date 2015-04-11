@@ -410,8 +410,10 @@ public class MainClass {
 		updateCalendar();
 		pgDates[AnsPagePos] = sdf.format(cal.getTime());
 		AnsPage.displayRows();
-		
-		logWriter("Read : "+AnsPage.ID[0]+", "+AnsPage.Name[0]+", "+AnsPage.PhoneNo[0]);
+		if(AnsPage.ID[0]==null)
+			logWriter("Aborted Transaction");
+		else
+			logWriter("Read : "+AnsPage.ID[0]+", "+AnsPage.Name[0]+", "+AnsPage.PhoneNo[0]);
 		
 	}
 
