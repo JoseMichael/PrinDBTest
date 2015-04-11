@@ -140,7 +140,7 @@ public class MainClass {
 				if(pos==15)
 				{ //meaning that the page is full
 					logWriter("SWAP OUT T-"+p.TableName[i]+" P-"+pageNumberOfExistingPageWithHashVal+" H-"+hashval);
-					obj.insertMMRowStorePages(p.TableName[i],RS[pageNumberOfExistingPageWithHashVal]); //dumps this page
+					obj.insertMMRowStorePages(p.TableName[i],RS[pageNumberOfExistingPageWithHashVal],MetaRows[pageNumberOfExistingPageWithHashVal]); //dumps this page
 					RS[pageNumberOfExistingPageWithHashVal] = new MMRowStorePages();  //code to clean dumper page
 					MetaRows[pageNumberOfExistingPageWithHashVal] = new MetaMMR(); //cleans the Meta Data
 					pgDates[pageNumberOfExistingPageWithHashVal] = "0"; //since this is free now
@@ -187,16 +187,23 @@ public class MainClass {
 			//RS[newPageForDump].displayRows();
 			if((k-l)==15)
 			{ //dump the page since page is full
+				MetaRows[newPageForDump].initMetaPage(hashval, p.TableName[i]);
+				setRecordsAsOldOrNew(x, newPageForDump);
+				
 				logWriter("SWAP OUT T-"+p.TableName[i]+" P-"+newPageForDump+" H-"+hashval);
-				obj.insertMMRowStorePages(p.TableName[i],RS[newPageForDump]); //dumps this page
+				obj.insertMMRowStorePages(p.TableName[i],RS[newPageForDump],MetaRows[newPageForDump]); //dumps this page
 				RS[newPageForDump] = new MMRowStorePages();  //code to clean dumper page
 				pgDates[newPageForDump] = "0";
+				
+				//clearing the meta data
+				MetaRows[newPageForDump] = new MetaMMR();
 			}
 			else
 			{ //need to set meta of the page and leave it in the wild
 				MetaRows[newPageForDump].initMetaPage(hashval, p.TableName[i]);
-				pgDates[newPageForDump] = setCurrentTime();
 				setRecordsAsOldOrNew(x, newPageForDump);
+				pgDates[newPageForDump] = setCurrentTime();
+				
 				
 			}
 			
@@ -325,7 +332,7 @@ public class MainClass {
 		{
 			int hashval = MetaRows[low].actualBucketNumber;
 			logWriter("SWAP OUT T-"+MetaRows[low].TableName+" P-"+low+" H-"+hashval);
-			obj.insertMMRowStorePages(MetaRows[low].TableName,RS[low]); //dumps this page
+			obj.insertMMRowStorePages(MetaRows[low].TableName,RS[low],MetaRows[low]); //dumps this page
 			RS[low] = new MMRowStorePages();  //code to clean dumper page
 			MetaRows[low] = new MetaMMR(); //cleans the Meta Data
 			pgDates[low] = "0"; //since this is free now
