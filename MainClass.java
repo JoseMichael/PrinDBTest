@@ -16,6 +16,9 @@ import java.util.ArrayList;
 public class MainClass {
 	
 	static MMRowStorePages RS[];
+	static ArrayList<MMRowStorePages> AfterImages = new ArrayList<MMRowStorePages>(30);
+	static ArrayList<MetaMMR> AfterImagesMeta = new ArrayList<MetaMMR>(30);
+	
 	static boolean pgsUsed[];
 	
 	static String pgDates[];
@@ -35,6 +38,8 @@ public class MainClass {
 	static MandG colstoreobj = new MandG();
 	
 	static int numberOfPages;
+	
+	static int CurrentTransactionNumber;
 	
 	/*static public void initArrayToFindPages(int a[])
 	{
@@ -97,6 +102,12 @@ public class MainClass {
 		return -1;
 	}
 	
+	public void writeIntoAfterCopy(int pgNo)
+	{
+		AfterImages.add(RS[pgNo]);
+		AfterImagesMeta.add(MetaRows[pgNo]);
+	}
+	
 	public void logWriter(String logentry)
 	{
 		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("D:\\DBTest\\logfile.txt", true)))) {
@@ -110,12 +121,7 @@ public class MainClass {
 	public void flushPageToDisk(MMRowStorePages p, int pgNo)
 	{
 		//TODO add function to send data as DiskPage to disk
-		//obj.insertMMRowStorePages(p);
-		//p = new MMRowStorePages();
-		//p.UsedForInserts=0;
 		
-		//new function
-		//pgDates[pgNo] = sdf.format(cal.getTime());  need a better funct to ensure page not switched
 		pgDates[pgNo] = "999999999";  //this is so that this page will not be switched for a while
 
 		for(int i=0; i<p.ID.length;i++)
@@ -136,11 +142,13 @@ public class MainClass {
 				RS[pageNumberOfExistingPageWithHashVal].ID[pos] = p.ID[i];
 				RS[pageNumberOfExistingPageWithHashVal].Name[pos] = p.Name[i];
 				RS[pageNumberOfExistingPageWithHashVal].PhoneNo[pos] = p.PhoneNo[i];
+				RS[pageNumberOfExistingPageWithHashVal].TransactionNumber[pos] = CurrentTransactionNumber;
 				
 				if(pos==15)
 				{ //meaning that the page is full
 					logWriter("SWAP OUT T-"+p.TableName[i]+" P-"+pageNumberOfExistingPageWithHashVal+" H-"+hashval);
-					obj.insertMMRowStorePages(p.TableName[i],RS[pageNumberOfExistingPageWithHashVal],MetaRows[pageNumberOfExistingPageWithHashVal]); //dumps this page
+					//obj.insertMMRowStorePages(p.TableName[i],RS[pageNumberOfExistingPageWithHashVal],MetaRows[pageNumberOfExistingPageWithHashVal]); //dumps this page
+					writeIntoAfterCopy(pageNumberOfExistingPageWithHashVal);
 					RS[pageNumberOfExistingPageWithHashVal] = new MMRowStorePages();  //code to clean dumper page
 					MetaRows[pageNumberOfExistingPageWithHashVal] = new MetaMMR(); //cleans the Meta Data
 					pgDates[pageNumberOfExistingPageWithHashVal] = "0"; //since this is free now
@@ -182,6 +190,7 @@ public class MainClass {
 			RS[newPageForDump].ID[k-l] = p.ID[i];
 			RS[newPageForDump].Name[k-l] = p.Name[i];
 			RS[newPageForDump].PhoneNo[k-l] = p.PhoneNo[i];
+			RS[newPageForDump].TransactionNumber[k-l] = CurrentTransactionNumber;
 			
 			//System.out.println("Inserted page is ");
 			//RS[newPageForDump].displayRows();
@@ -191,7 +200,8 @@ public class MainClass {
 				setRecordsAsOldOrNew(x, newPageForDump);
 				
 				logWriter("SWAP OUT T-"+p.TableName[i]+" P-"+newPageForDump+" H-"+hashval);
-				obj.insertMMRowStorePages(p.TableName[i],RS[newPageForDump],MetaRows[newPageForDump]); //dumps this page
+				writeIntoAfterCopy(newPageForDump);
+				//obj.insertMMRowStorePages(p.TableName[i],RS[newPageForDump],MetaRows[newPageForDump]); //dumps this page
 				RS[newPageForDump] = new MMRowStorePages();  //code to clean dumper page
 				pgDates[newPageForDump] = "0";
 				
@@ -263,9 +273,9 @@ public class MainClass {
 				//thus the page is shown as least recently used and now anyone can use it
 			}
 		}
-		//flushPageToDisk(RS[InsertPagePos],InsertPagePos); //TODO maybe change this
-		//pgDates[InsertPagePos] = "0"; //del these last 2 lines
-		//thus now it wont flush after every insert
+		flushPageToDisk(RS[InsertPagePos],InsertPagePos); //TODO maybe change this
+		pgDates[InsertPagePos] = "0"; //del these last 2 lines
+		//thus now it will flush after every insert
 		logWriter("Inserted : "+ID+", "+Name+", "+PhoneNo);
 	}
 	
@@ -332,7 +342,8 @@ public class MainClass {
 		{
 			int hashval = MetaRows[low].actualBucketNumber;
 			logWriter("SWAP OUT T-"+MetaRows[low].TableName+" P-"+low+" H-"+hashval);
-			obj.insertMMRowStorePages(MetaRows[low].TableName,RS[low],MetaRows[low]); //dumps this page
+			writeIntoAfterCopy(low);
+			//obj.insertMMRowStorePages(MetaRows[low].TableName,RS[low],MetaRows[low]); //dumps this page
 			RS[low] = new MMRowStorePages();  //code to clean dumper page
 			MetaRows[low] = new MetaMMR(); //cleans the Meta Data
 			pgDates[low] = "0"; //since this is free now
