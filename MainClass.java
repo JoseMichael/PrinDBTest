@@ -108,6 +108,58 @@ public class MainClass {
 		AfterImagesMeta.add(MetaRows[pgNo]);
 	}
 	
+	public boolean afterCopyValuablDataCheck(int TransNo, MMRowStorePages p)
+	{//this function checks if an after copy has any valuable data, i.e. any record with trans no
+		int count = 0;
+		
+		for(int i=0; i<p.ID.length; i++)
+		{
+			if(p.TransactionNumber[i]!=-1)
+				count++;
+		}
+		if(count!=0)
+			return true;
+		return false;
+	}
+	
+	public MMRowStorePages flushTransFromAfterImage(int TransNo, MMRowStorePages p, int ChoiceVariable)
+	{
+		//if choicevariable is 1 means we need to flush otherwise we need to discard
+		int RecordNumbersThatHaveMarkedTrans[] = new int[16];
+		int count=0;
+		for(int i=0; i<p.ID.length; i++)
+		{
+			if(p.TransactionNumber[i]==-1)
+				continue;
+			if(p.TransactionNumber[i]==TransNo)
+			{
+				RecordNumbersThatHaveMarkedTrans[count++] = i;
+			}
+		}//find out all records with transaction number TransNo
+		for(int j=0; j<count; j++)
+		{
+			String ID = p.ID[RecordNumbersThatHaveMarkedTrans[j]];
+			String Name = p.Name[RecordNumbersThatHaveMarkedTrans[j]];
+			String Telephone = p.PhoneNo[RecordNumbersThatHaveMarkedTrans[j]];
+			
+			if(ChoiceVariable==1)
+				sendOneTupleToDisk(ID, Name, Telephone); //send the found tuple to the disk
+			
+			p.ID[RecordNumbersThatHaveMarkedTrans[j]] = null;
+			p.Name[RecordNumbersThatHaveMarkedTrans[j]] = null;
+			p.PhoneNo[RecordNumbersThatHaveMarkedTrans[j]] = null;
+			p.TransactionNumber[RecordNumbersThatHaveMarkedTrans[j]] = -1;
+			//empty the place of the found tuple
+		}
+		
+		return p;
+	}
+	
+	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
+	{//TODO implement this
+		
+	}
+	
 	public void logWriter(String logentry)
 	{
 		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("D:\\DBTest\\logfile.txt", true)))) {
