@@ -553,6 +553,38 @@ public class MainClass {
 		System.out.println("Please enter the size of the buffer");
 		Scanner sc = new Scanner(System.in);
 		int buffersize = sc.nextInt();
+		System.out.println();
+		
+		System.out.println("Please enter total number of scripts to use");
+		System.out.println("-------------------------------------------");
+		int nmbrOfScripts = sc.nextInt();
+		System.out.println();
+		List<String> filepaths = new ArrayList<String>();
+		for(int i = 0; i < nmbrOfScripts; i++)
+		{
+			System.out.println("Please enter the script names" + i);
+			System.out.println("---------------------------------------");
+			filepaths.add(sc.nextLine());
+			System.out.println();
+		}
+		
+		System.out.println("Please select concurrency reading method");
+		System.out.println("----------------------------------------");
+		System.out.println("1 - Round Robin");
+		System.out.println("2 - Random");
+		System.out.println("----------------------------------------");
+		System.out.print("Enter a number: ");
+		int rdmethod = sc.nextInt();
+		
+		System.out.println();
+		int rngseed = 0;
+		if (rdmethod == 2)
+		{
+			System.out.println("Please enter a seed for the RNG");
+			System.out.println("-------------------------------");
+			rngseed = sc.nextInt();
+		}
+
 		numberOfPages = ((buffersize)/512)/2;
 		RS = new MMRowStorePages[numberOfPages];
 		pgsUsed = new boolean[numberOfPages];
@@ -570,109 +602,7 @@ public class MainClass {
 		for(int i=0; i<pgsUsed.length; i++)
 			pgsUsed[i] = false;
 		
-		//Priyanka's code
-		/*File f=new File(obj.id);
-		if(f.exists())
-			f.delete();
-		f=new File(obj.name);
-		if(f.exists())
-			f.delete();
-		f=new File(obj.phone);
-		if(f.exists())
-			f.delete();
-		
-		obj.newList=obj.readFile();
-		obj.formHeaders();
-		obj.insertData();  */
-		/*
-		String fileId="C:\\Users\\JoseMichael\\Desktop\\DB\\Y-id.txt";
-		String fileName="C:\\Users\\JoseMichael\\Desktop\\DB\\Y-name.txt";
-		String filePhone="C:\\Users\\JoseMichael\\Desktop\\DB\\Y-phone.txt";
-			
-		File fid=new File(fileId);
-		File fname=new File(fileName);
-		File fphone=new File(filePhone);
-		if(!fid.exists() || !fname.exists() || !fphone.exists())
-		{	
-			File f=new File(obj.dataFile);
-			String[] nameArray=f.getName().split(".txt");
-			obj.tableName.add(nameArray[0].toUpperCase());
-			obj.newList=obj.readFile(nameArray[0].toUpperCase());
-			obj.formHeaders(nameArray[0].toUpperCase());
-		    obj.insertData(nameArray[0].toUpperCase());
-		    
-		}
-		else
-		{
-			File meta=new File(obj.metadataFile);
-			BufferedReader br;
-			try {
-				br = new BufferedReader(new FileReader(meta));
-				String line;
-				try {
-					while ((line = br.readLine()) != null) {
-						
-						String[] temp=line.split("-");
-                        if(obj.tableName.contains(temp[0].toUpperCase()))
-                       {
-                              
-                       }
-                       else
-                       {
-                              obj.tableName.add(temp[0].toUpperCase());
-                       }
-                        if(temp[1].equals("id.txt"))
-                              obj.id= "-" + temp[1];
-                       else
-                              if(temp[1].equals("name.txt"))
-                                    obj.name= "-" + temp[1];
-                              else
-                                     if(temp[1].equals("phone.txt"))
-                                           obj.phone= "-" + temp[1];
-						
-					   /* if(counter==1)
-					    {
-					    	
-					    	String[] temp=line.split("-");
-					    	obj.tableName.add(temp[0].toUpperCase());
-					    	obj.id= "-" + temp[1];
-					    	
-					    	counter++;
-					    }
-					    else
-					    	if(counter==2)
-					    	{
-					    		String[] temp=line.split("-");
-					    		obj.name="-" +temp[1];
-						    	counter++;
-					    	}
-					    	else
-						    	if(counter==3)
-						    	{
-						    		String[] temp=line.split("-");
-						    		obj.phone="-" + temp[1];
-							    	counter++;
-						    	}
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				try {
-					br.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		
-		}
-		*/
-		
+		//Priyanka's code		
 		File meta=new File(obj.metadataFile);
 		if(meta.exists())
 		{
@@ -761,15 +691,14 @@ public class MainClass {
 	
 		}
 		
-		//Start forming the list of TransProc objects as per the number of scripts
-		List<String> scriptCount=new ArrayList<>();
+		//Start forming the list of TransProc objects as per the number of scripts	    
 		List<TransProc> tpList=new ArrayList<TransProc>();
-		for(int i=0;i<scriptCount.size();i++) 
+		for(int i=0;i<filepaths.size();i++) 
 		{
 			TransProc tp=new TransProc();
- 			tp.script= obj.readScript(scriptCount.get(i));
- 			tpList.add(tp);
-		}
+			tp.script= obj.readScript(filepaths.get(i));
+			tpList.add(tp);
+		}		
 		
 		MainClass rclass = new MainClass();
 		//rclass.retrieveWithID(139);
