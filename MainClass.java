@@ -757,9 +757,20 @@ public class MainClass {
 				}
 				System.out.println("\nTableCount:"+ obj.tableName.size() );
 								
-			}
+		    }
 	
-	}
+		}
+		
+		//Start forming the list of TransProc objects as per the number of scripts
+		List<String> scriptCount=new ArrayList<>();
+		List<TransProc> tpList=new ArrayList<TransProc>();
+		for(int i=0;i<scriptCount.size();i++) 
+		{
+			TransProc tp=new TransProc();
+ 			tp.script= obj.readScript(scriptCount.get(i));
+ 			tpList.add(tp);
+		}
+		
 		MainClass rclass = new MainClass();
 		//rclass.retrieveWithID(139);
 		rclass.scriptAnalyzer();
