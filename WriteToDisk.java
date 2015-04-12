@@ -30,10 +30,6 @@ public class WriteToDisk {
 	String name="-name.txt"; 
 	String phone="-phone.txt"; 
 	
-	//String baseFileLoc="D:\\current\\";
-	//String dataFile="D:\\current\\X.txt";
-	//String metadataFile="D:\\current\\metadata.txt";
-	
 	String baseFileLoc="D:\\DBTest\\";
 	String dataFile="D:\\DBTest\\X.txt";
 	String metadataFile="D:\\DBTest\\metadata.txt";
@@ -49,51 +45,41 @@ public class WriteToDisk {
 		return id;
 	}
 
-
 	public String getName() {
 		return name;
 	}
-
 
 	public String getPhone() {
 		return phone;
 	}
 
-
 	public String getBase() {
 		return base;
 	}
-
 
 	public String getOrOperator() {
 		return orOperator;
 	}
 
-
 	public String getComma() {
 		return comma;
 	}
-
 
 	public String getSemiColon() {
 		return semiColon;
 	}
 
-
 	public int getBucketCount() {
 		return bucketCount;
 	}
-
 
 	public String getDump() {
 		return dump;
 	}
 
-
 	public List<Schema> getNewList() {
 		return newList;
 	}
-
 
 	public void setNewList(List<Schema> newList) {
 		this.newList = newList;
@@ -2038,6 +2024,35 @@ public class WriteToDisk {
 		}
 	}
 
+	public List<String> readScript(String ScriptName) {
+		
+		List<String> scriptList=new ArrayList<>();
+		try 
+		{		
+			BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(baseFileLoc + ScriptName),"Cp1252"));			
+			String line;
+			
+			try 
+			{
+				while((line=br.readLine())!=null)
+				{
+					scriptList.add(line);
+				}
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			}
+		} catch (UnsupportedEncodingException e) {
+			
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			
+			e.printStackTrace();
+		}
+		
+		return scriptList;
+	}
+	
 	public static void main(String agrs[])throws IOException
 	{
 		WriteToDisk w=new WriteToDisk();
