@@ -15,6 +15,7 @@ public class TransProc {
 	boolean isWaiting=false;
 	//TODO: GET FILESIZE
 	int filesize=-1;
+	boolean isProcess=false;
 	
 	public int getIndex() {
 		return index;
