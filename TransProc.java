@@ -16,7 +16,7 @@ public class TransProc {
 	//TODO: GET FILESIZE
 	private int filesize=-1;
 	private boolean isProcess=false;
-	private LockItems lockItem;
+	private List<LockItems> lockItem;
 	
 	public int getIndex() {
 		return index;
