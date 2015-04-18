@@ -8,15 +8,15 @@ import java.util.List;
  */
 public class TransProc {
 	
-	private List<String> script=new ArrayList<>();
-	private List<String> completedOperations=new ArrayList<>();
-	private int index=-1;
-	private int scriptNum;
-	private boolean isWaiting=false;
+	public List<String> script=new ArrayList<>();
+	public List<String> completedOperations=new ArrayList<>();
+	public int index=-1;
+	public int scriptNum;
+	public boolean isWaiting=false;
 	//TODO: GET FILESIZE
-	private int filesize=-1;
-	private boolean isProcess=false;
-	private List<LockItems> lockItem;
+	public int filesize=-1;
+	public boolean isProcess=false;
+	public List<LockItems> lockItem;
 	
 	public int getIndex() {
 		return index;

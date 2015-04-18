@@ -1,8 +1,8 @@
 
 public class LockItems 
 {
-	private String operation;
-	private String TableName;
-	private Schema schema;
+	public String operation;
+	public String TableName;
+	public Schema schema;
 	
 }
