@@ -26,6 +26,14 @@ public class TransProc {
 		this.index = index;
 	}
 	
+	public List<LockItems> getLockItem() {
+		return lockItem;
+	}
+
+	public void setLockItem(List<LockItems> lockItem) {
+		this.lockItem = lockItem;
+	}
+
 	public String getNextOperation() 
 	{
 		String operation="";
@@ -36,6 +44,12 @@ public class TransProc {
 			operation=script.get(getIndex());
 		}
 		return operation;
+	}
+	
+	public void decrementScriptPointer()
+	{
+		int index=getIndex();
+		setIndex(index--);
 	}
 	
 }
