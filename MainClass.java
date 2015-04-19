@@ -195,6 +195,40 @@ public class MainClass {
 		return listOfRecords;
 	}
 	
+	public int getGsInTheRecords(String AreaCode, ArrayList<SingleRecordClass> listOfRecords)
+	{//this function gets the number of records with AreaCode 
+		int count = 0;
+		
+		for(int i=0; i<listOfRecords.size(); i++)
+		{
+			SingleRecordClass temp = listOfRecords.get(i);
+			String tele = temp.TelephoneNo;
+			tele = tele.substring(0, 3);
+			if(tele.equals(AreaCode))
+				count++;
+		}
+		
+		return count;
+	}
+	
+	public ArrayList<SingleRecordClass> getMsInTheRecords(String AreaCode, ArrayList<SingleRecordClass> listOfRecords)
+	{
+		ArrayList<SingleRecordClass> newList = new ArrayList<SingleRecordClass>();
+		
+		for(int i=0; i<listOfRecords.size(); i++)
+		{
+			SingleRecordClass temp = listOfRecords.get(i);
+			String tele = temp.TelephoneNo;
+			tele = tele.substring(0, 3);
+			if(tele.equals(AreaCode))
+			{
+				newList.add(temp);
+			}
+		}
+		
+		return newList;
+	}
+	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
 		
