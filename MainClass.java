@@ -229,6 +229,33 @@ public class MainClass {
 		return newList;
 	}
 	
+	public boolean pageContainsTransID(MMRowStorePages p,int TransNo)
+	{//this function checks if a particular page has ANY records with transaction ID TransNo
+		for(int i=0; i<p.ID.length; i++)
+		{
+			if(p.TransactionNumber[i]==TransNo)
+				return true;
+		}
+		return false;
+	}
+	
+	public void flushPagesWithTransIDToAfterCopy(int TransNo)
+	{//this method will go through the various row store pages and if it finds even a single record belonging
+		//to TransNo then it flushes the page into the aftercopy
+		for(int i=0; i<RS.length; i++)
+		{
+			if(pageContainsTransID(RS[i], TransNo))
+			{
+				//flush page to after copy
+				writeIntoAfterCopy(i);
+				RS[i] = new MMRowStorePages();
+				MetaRows[i] = new MetaMMR();
+				pgDates[i] = "0";
+			}
+		}
+			
+	}
+	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
 		
