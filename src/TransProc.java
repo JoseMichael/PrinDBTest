@@ -13,8 +13,6 @@ public class TransProc {
 	public int index=-1;
 	public int scriptNum;
 	public boolean isWaiting=false;
-	//TODO: GET FILESIZE
-	public int filesize=-1;
 	public boolean isProcess=false;
 	public List<LockItems> lockItem;
 	
