@@ -160,6 +160,41 @@ public class MainClass {
 		return p;
 	}
 	
+	public ArrayList<SingleRecordClass> getAllRecordsOfTrans(int TransNo)
+	{//this method gives you a list of records associated with a particular transcation number
+		ArrayList <SingleRecordClass> listOfRecords = new ArrayList<SingleRecordClass>();
+		
+		for(int i=0; i<RS.length; i++)
+			for(int j=0; j<RS[i].ID.length; j++)
+			{
+				if(RS[i].TransactionNumber[i]==-1)
+					continue;
+				if(RS[i].TransactionNumber[i]==TransNo)
+				{
+					SingleRecordClass temp = new SingleRecordClass();
+					temp.setRecord(RS[i].ID[j], RS[i].Name[j], RS[i].PhoneNo[j]);
+					listOfRecords.add(temp);
+				}
+			} //this part of the code goes through all the row store pages and holds records with a particular trans no
+		
+		for(int i=0; i<AfterImages.size(); i++)
+			for(int j=0; j<AfterImages.get(i).ID.length; j++)
+			{
+				MMRowStorePages p = AfterImages.get(i);
+				
+				if(p.TransactionNumber[i]==-1)
+					continue;
+				if(p.TransactionNumber[i]==TransNo)
+				{
+					SingleRecordClass temp = new SingleRecordClass();
+					temp.setRecord(p.ID[j], p.Name[j], p.PhoneNo[j]);
+					listOfRecords.add(temp);
+				}
+			} //this part of the code goes through all the afterimages and holds records with a particular trans no
+		
+		return listOfRecords;
+	}
+	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
 		
