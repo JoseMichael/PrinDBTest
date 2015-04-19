@@ -256,6 +256,27 @@ public class MainClass {
 			
 	}
 	
+	public void createDeleteRecordInAfterCopy(String TableName)
+	{//this function inserts a record into the aftercopy which signifies a delete
+		//TODO remember to call flushPagesWithTransIDToAfterCopy before calling this
+		MMRowStorePages p = new MMRowStorePages();
+		MetaMMR p2 = new MetaMMR();
+		
+		p.ID[0] = "-666";
+		p.Name[0] = TableName;
+		p.PhoneNo[0] = "123456";
+		p.TableName[0] = TableName;
+		p.TransactionNumber[0] = CurrentTransactionNumber;
+		
+		int pos = findPageToReplace();
+		RS[pos] = p;
+		MetaRows[pos] = p2;
+		writeIntoAfterCopy(pos);
+		RS[pos] = new MMRowStorePages();
+		MetaRows[pos] = new MetaMMR();
+		pgDates[pos] = "0";
+	}
+	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
 		
