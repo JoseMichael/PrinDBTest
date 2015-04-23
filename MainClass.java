@@ -160,6 +160,34 @@ public class MainClass {
 		return p;
 	}
 	
+	public MMRowStorePages deleteOldInsertsFromAfterCopy(int TransNo, MMRowStorePages p, String tablename)
+	{//adapted flushTransFromAfterImage to make funct to del inserts from after copy
+	
+		//if choicevariable is 1 means we need to flush otherwise we need to discard
+		int RecordNumbersThatHaveMarkedTrans[] = new int[16];
+		int count=0;
+		for(int i=0; i<p.ID.length; i++)
+		{
+			if(p.TransactionNumber[i]==-1)
+				continue;
+			if(p.TransactionNumber[i]==TransNo && p.TableName.equals(tablename))
+			{
+				RecordNumbersThatHaveMarkedTrans[count++] = i;
+			}
+		}//find out all records with transaction number TransNo
+		for(int j=0; j<count; j++)
+		{
+			
+			p.ID[RecordNumbersThatHaveMarkedTrans[j]] = null;
+			p.Name[RecordNumbersThatHaveMarkedTrans[j]] = null;
+			p.PhoneNo[RecordNumbersThatHaveMarkedTrans[j]] = null;
+			p.TransactionNumber[RecordNumbersThatHaveMarkedTrans[j]] = -1;
+			//empty the place of the found tuple
+		}
+		
+		return p;
+	}
+	
 	public ArrayList<SingleRecordClass> getAllRecordsOfTrans(int TransNo)
 	{//this method gives you a list of records associated with a particular transcation number
 		ArrayList <SingleRecordClass> listOfRecords = new ArrayList<SingleRecordClass>();
