@@ -642,6 +642,7 @@ public class MainClass {
 	public void scriptAnalyzer(int tpid, String nextOp, boolean isProcess)throws IOException
 	{
 		  Scanner lineScanner = new Scanner(nextOp);
+		  CurrentTransactionNumber=tpid;
 		  while (lineScanner.hasNext()) {
 		    String token = lineScanner.next();
 		    if(token.equals("R"))
