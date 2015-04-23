@@ -177,7 +177,6 @@ public class MainClass {
 		}//find out all records with transaction number TransNo
 		for(int j=0; j<count; j++)
 		{
-			
 			p.ID[RecordNumbersThatHaveMarkedTrans[j]] = null;
 			p.Name[RecordNumbersThatHaveMarkedTrans[j]] = null;
 			p.PhoneNo[RecordNumbersThatHaveMarkedTrans[j]] = null;
@@ -307,7 +306,6 @@ public class MainClass {
 	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
-		//Get the table name for this insert
 		obj.insertRow("",Integer.parseInt(ID), Name, Telephone);
 	}
 	
@@ -437,7 +435,7 @@ public class MainClass {
 	}
 
 	
-	public void insertIntoTable(String ID, String Name, String PhoneNo, String TableName,int tpid)
+	public void insertIntoTable(String ID, String Name, String PhoneNo, String TableName, int tpid)
 	{
 		//this snippet of code will either find a page with inserts or get a new page
 		int InsertPagePos = findPageWithInserts();
@@ -602,7 +600,7 @@ public class MainClass {
 		pgDates[pageNumber] = sdf.format(cal.getTime());
 	}
 	
-	public void retrieveWithID(int IDval, String TableName,int tpid) //IDval is set as int here
+	public void retrieveWithID(int IDval, String TableName, int tpid) //IDval is set as int here
 	{
 		recordCounter = 0;
 		AnsPage = new MMRowStorePages();
@@ -641,10 +639,9 @@ public class MainClass {
 	}
 
 	
-	public void scriptAnalyzer(int tpid, String nextOp)throws IOException
+	public void scriptAnalyzer(int tpid, String nextOp, boolean isProcess)throws IOException
 	{
 		  Scanner lineScanner = new Scanner(nextOp);
-		  CurrentTransactionNumber=tpid;
 		  while (lineScanner.hasNext()) {
 		    String token = lineScanner.next();
 		    if(token.equals("R"))
@@ -669,32 +666,43 @@ public class MainClass {
 		    {
 		    	String tableName= lineScanner.next();
 		    	String AreaCode = lineScanner.next();
-		    	colstoreobj.GQuery(tableName, AreaCode, numberOfPages, obj);
 		    	
+		    	int gcount = colstoreobj.GQuery(tableName, AreaCode, numberOfPages, obj);
+		    	gcount += getGsInTheRecords(AreaCode, getAllRecordsOfTrans(tpid));
+		    	String output = "GCount: " + Integer.toString(gcount);
+				logWriter(output);
+				System.out.println(output);
 		    }
 		    else if(token.equals("M"))
 		    {
 		    	String tableName= lineScanner.next();
 		    	String AreaCode = lineScanner.next();
 		    	colstoreobj.MQuery(tableName, AreaCode, numberOfPages, obj);
+		    	ArrayList<SingleRecordClass> myrecs = getMsInTheRecords(AreaCode, getAllRecordsOfTrans(tpid));
+		    	for(int i = 0; i < myrecs.size();i++)
+		    	{
+		    		String output = "MRead: " + myrecs.get(i).ID + "," + myrecs.get(i).Name + "," + myrecs.get(i).TelephoneNo;
+		    		logWriter(output);
+					System.out.println(output);
+		    	}
 		    }
 		    else if(token.equals("D"))
 		    {
 		    	String tableName= lineScanner.next();
-		    	//obj.deleteTable(tableName, tpid);
+		    	obj.deleteTable(tableName, tpid);
 		    	logWriter("Deleted : "+tableName);
 		    }
 		    else if(token.equals("A"))
 		    {
-		    	/*//ABORT
-		    	if(currenttp.isProcess)
-		    	{
+		    	//ABORT
+		    	//if(tp.isProcess)
+		    	//{
 		    		//DONOTHING???
-		    	}
-		    	else
-		    	{
+		    	//}
+		    	//else
+		    	//{
 		    		//DISCARD AFTER IMAGE
-		    	}*/
+		    	//}
 		    }
 		    else if(token.equals("C"))
 		    {
@@ -917,7 +925,7 @@ public class MainClass {
 				currenttp.lockItem.add(litem);
 				/////////////////////////////////////////////
 
-				scriptAnalyzer(currenttp.scriptNum, nxtop);
+				scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
 				
 				/////////////////////////////////////////////
 				//Release read locks if a process, consult waitfor graph
@@ -937,7 +945,7 @@ public class MainClass {
 			}
 			else if (waitforflag == 2)
 			{
-				if (split.equals("B"))
+				if (split[0].equals("B"))
 				{
 					currenttp.completedOperations.add(nxtop);
 					if(split[1].equals("0")) {currenttp.isProcess = true;}
@@ -946,7 +954,7 @@ public class MainClass {
 				else
 				{
 					//handle commit, abort, and begin
-					scriptAnalyzer(currenttp.scriptNum, nxtop);
+					scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
 					
 					//Wipe the locks and the completed operations lists
 					//NOTE: this gets done for B, A, and C operations;
@@ -968,6 +976,9 @@ public class MainClass {
 	{
 		ConcurrencyReader cc = new ConcurrencyReader();
 		int waitforflag = 0;
+		WaitForGraph wfg = new WaitForGraph();
+		wfg.initWithNumberOfScripts(tplist.size());
+		
 		////////////////////////////////////////////////////////////////////
 		// CODE TO GET RANDOMLY ORDERED LIST BASED ON SIZE OF TRANSPROC LIST
 		int usrseed = rndseed;
@@ -975,7 +986,6 @@ public class MainClass {
 		
 		Random rng = new Random(usrseed);
 		Set<Integer> intset = new LinkedHashSet<Integer>();
-		
 		
 		while(intset.size() < listsize)
 		{
@@ -998,9 +1008,10 @@ public class MainClass {
 			{
 				TransProc currenttp = tplist.get(intlist.get(i));
 				String nxtop = currenttp.getNextOperation();
+				String split[]= StringUtils.split(nxtop," (,)");
 				
 				//Only pass operations that aren't B, A, or C
-				if (nxtop == "B" || nxtop == "A" || nxtop == "C")
+				if (split[0].equals("B") || split[0].equals("A") || split[0].equals("C"))
 				{
 					waitforflag = 2;
 				}
@@ -1013,7 +1024,6 @@ public class MainClass {
 				{
 					/////////////////////////////////////////////
 					//Here we're adding the lock to the TransProc class
-					String split[]= StringUtils.split(nxtop," (,)");
 					LockItems litem = new LockItems();
 					litem.operation = split[0];
 					litem.TableName = split[1];
@@ -1035,7 +1045,7 @@ public class MainClass {
 					currenttp.lockItem.add(litem);
 					/////////////////////////////////////////////
 
-					scriptAnalyzer(currenttp.scriptNum, nxtop);
+					scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
 					
 					/////////////////////////////////////////////
 					//Release read locks if a process, consult waitfor graph
@@ -1051,22 +1061,33 @@ public class MainClass {
 				else if (waitforflag == 1)
 				{
 					//send to waitfor graph
+					currenttp.decrementScriptPointer();
 				}
 				else if (waitforflag == 2)
 				{
-					//handle commit, abort, and begin
-					scriptAnalyzer(currenttp.scriptNum, nxtop);
-					
-					//Wipe the locks and the completed operations lists
-					//NOTE: this gets done for B, A, and C operations;
-					//clearing for any of these operations should be fine
-					currenttp.lockItem.clear();
-					currenttp.completedOperations.clear();
-					
-					/////////////////////////////////////////////
-					//TODO:CONSULT WAITFOR GRAPH AND REMOVE
-					//DEPENDENCIES HERE; CONSULT JOSE
-					/////////////////////////////////////////////
+					if (split[0].equals("B"))
+					{
+						currenttp.completedOperations.add(nxtop);
+						if(split[1].equals("0")) {currenttp.isProcess = true;}
+						else {currenttp.isProcess = false;}
+					}
+					else
+					{
+						//handle commit, abort, and begin
+						scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
+						
+						//Wipe the locks and the completed operations lists
+						//NOTE: this gets done for B, A, and C operations;
+						//clearing for any of these operations should be fine
+						currenttp.lockItem.clear();
+						currenttp.completedOperations.clear();
+						currenttp.isProcess = false;
+						
+						/////////////////////////////////////////////
+						//TODO:CONSULT WAITFOR GRAPH AND REMOVE
+						//DEPENDENCIES HERE; CONSULT JOSE
+						/////////////////////////////////////////////
+					}
 				}
 			}
 		}
