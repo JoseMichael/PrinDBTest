@@ -408,7 +408,7 @@ public class MainClass {
 	}
 
 	
-	public void insertIntoTable(String ID, String Name, String PhoneNo, String TableName)
+	public void insertIntoTable(String ID, String Name, String PhoneNo, String TableName, int tpid)
 	{
 		//this snippet of code will either find a page with inserts or get a new page
 		int InsertPagePos = findPageWithInserts();
@@ -573,7 +573,7 @@ public class MainClass {
 		pgDates[pageNumber] = sdf.format(cal.getTime());
 	}
 	
-	public void retrieveWithID(int IDval, String TableName) //IDval is set as int here
+	public void retrieveWithID(int IDval, String TableName, int tpid) //IDval is set as int here
 	{
 		recordCounter = 0;
 		AnsPage = new MMRowStorePages();
@@ -657,14 +657,14 @@ public class MainClass {
 		    else if(token.equals("A"))
 		    {
 		    	//ABORT
-		    	if(tp.isProcess)
-		    	{
+		    	//if(tp.isProcess)
+		    	//{
 		    		//DONOTHING???
-		    	}
-		    	else
-		    	{
+		    	//}
+		    	//else
+		    	//{
 		    		//DISCARD AFTER IMAGE
-		    	}
+		    	//}
 		    }
 		    else if(token.equals("C"))
 		    {
@@ -1005,7 +1005,7 @@ public class MainClass {
 					currenttp.lockItem.add(litem);
 					/////////////////////////////////////////////
 
-					scriptAnalyzer(currenttp, nxtop);
+					scriptAnalyzer(currenttp.scriptNum, nxtop);
 					
 					/////////////////////////////////////////////
 					//Release read locks if a process, consult waitfor graph
@@ -1025,7 +1025,7 @@ public class MainClass {
 				else if (waitforflag == 2)
 				{
 					//handle commit, abort, and begin
-					scriptAnalyzer(currenttp, nxtop);
+					scriptAnalyzer(currenttp.scriptNum, nxtop);
 					
 					//Wipe the locks and the completed operations lists
 					//NOTE: this gets done for B, A, and C operations;
