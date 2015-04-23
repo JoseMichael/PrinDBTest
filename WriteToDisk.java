@@ -1374,7 +1374,7 @@ public class WriteToDisk {
 			if(tableName.contains(TableName.toUpperCase()))
 			{
 				this.newList=list;
-				insertData(TableName);
+				insertData(TableName.toUpperCase());
 			}
 			else
 			{
@@ -2024,7 +2024,8 @@ public class WriteToDisk {
 		}
 	}
 
-	public List<String> readScript(String ScriptName) {
+	public List<String> readScript(String ScriptName)
+	{
 		
 		List<String> scriptList=new ArrayList<>();
 		try 
@@ -2051,6 +2052,18 @@ public class WriteToDisk {
 		}
 		
 		return scriptList;
+	}
+
+	//Inserts a Row into the disk
+	public void insertRow(String TableName, int Id, String Name, String Phone)
+	{
+		List<Schema> list=new ArrayList<Schema>();
+		Schema sh= new Schema();
+		sh.setId(Id);
+		sh.setName(Name);
+		sh.setPhone(Phone);
+		list.add(sh);
+		insertData(TableName.toUpperCase());
 	}
 	
 	public static void main(String agrs[])throws IOException
