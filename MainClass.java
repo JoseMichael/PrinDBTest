@@ -316,7 +316,7 @@ public class MainClass {
 				RS[pageNumberOfExistingPageWithHashVal].ID[pos] = p.ID[i];
 				RS[pageNumberOfExistingPageWithHashVal].Name[pos] = p.Name[i];
 				RS[pageNumberOfExistingPageWithHashVal].PhoneNo[pos] = p.PhoneNo[i];
-				RS[pageNumberOfExistingPageWithHashVal].TransactionNumber[pos] = CurrentTransactionNumber;
+				RS[pageNumberOfExistingPageWithHashVal].TransactionNumber[pos] = p.TransactionNumber[i];
 				
 				if(pos==15)
 				{ //meaning that the page is full
@@ -364,7 +364,7 @@ public class MainClass {
 			RS[newPageForDump].ID[k-l] = p.ID[i];
 			RS[newPageForDump].Name[k-l] = p.Name[i];
 			RS[newPageForDump].PhoneNo[k-l] = p.PhoneNo[i];
-			RS[newPageForDump].TransactionNumber[k-l] = CurrentTransactionNumber;
+			RS[newPageForDump].TransactionNumber[k-l] = p.TransactionNumber[i];
 			
 			//System.out.println("Inserted page is ");
 			//RS[newPageForDump].displayRows();
@@ -427,6 +427,7 @@ public class MainClass {
 			RS[InsertPagePos].Name[0] = Name;
 			RS[InsertPagePos].PhoneNo[0] = PhoneNo;
 			RS[InsertPagePos].TableName[0] = TableName;
+			RS[InsertPagePos].TransactionNumber[0] = CurrentTransactionNumber;
 		}
 		else
 		{
@@ -437,6 +438,7 @@ public class MainClass {
 			RS[InsertPagePos].Name[i] = Name;
 			RS[InsertPagePos].PhoneNo[i] = PhoneNo;
 			RS[InsertPagePos].TableName[i] = TableName;
+			RS[InsertPagePos].TransactionNumber[i] = CurrentTransactionNumber;
 			if(i==15)
 			{
 				//page is full so flush to disk
