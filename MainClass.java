@@ -307,7 +307,8 @@ public class MainClass {
 	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
-		
+		//Get the table name for this insert
+		obj.insertRow("",Integer.parseInt(ID), Name, Telephone);
 	}
 	
 	public void logWriter(String logentry)
@@ -643,6 +644,7 @@ public class MainClass {
 	public void scriptAnalyzer(int tpid, String nextOp)throws IOException
 	{
 		  Scanner lineScanner = new Scanner(nextOp);
+		  CurrentTransactionNumber=tpid;
 		  while (lineScanner.hasNext()) {
 		    String token = lineScanner.next();
 		    if(token.equals("R"))
