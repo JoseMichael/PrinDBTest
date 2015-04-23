@@ -612,7 +612,7 @@ public class MainClass {
 	}
 
 	
-	public void scriptAnalyzer(TransProc tp, String nextOp)throws IOException
+	public void scriptAnalyzer(int tpid, String nextOp)throws IOException
 	{
 		  Scanner lineScanner = new Scanner(nextOp);
 		  while (lineScanner.hasNext()) {
@@ -621,7 +621,7 @@ public class MainClass {
 		    {
 		    	String tableName = lineScanner.next(); //this is for table name
 		    	String test = lineScanner.next(); //this is for ID
-		    	retrieveWithID(Integer.parseInt(test),tableName);
+		    	retrieveWithID(Integer.parseInt(test),tableName, tpid);
 		    }
 		    else if(token.equals("I"))
 		    {
@@ -633,7 +633,7 @@ public class MainClass {
 		    	String PhoneNo = lineScanner.next(); //this gives phone no
 		    	PhoneNo = PhoneNo.substring(0,PhoneNo.length()-1);
 		    	
-		    	insertIntoTable( ID,  Name,  PhoneNo, tableName);
+		    	insertIntoTable( ID,  Name,  PhoneNo, tableName, tpid);
 		    }
 		    else if(token.equals("G"))
 		    {
@@ -651,20 +651,8 @@ public class MainClass {
 		    else if(token.equals("D"))
 		    {
 		    	String tableName= lineScanner.next();
-		    	obj.deleteTable(tableName);
+		    	obj.deleteTable(tableName, tpid);
 		    	logWriter("Deleted : "+tableName);
-		    }
-		    else if(token.equals("B"))
-		    {
-		    	int tpType = Integer.parseInt(lineScanner.next());
-		    	if(tpType == 0)
-		    	{
-		    		tp.isProcess = true;
-		    	}
-		    	else if (tpType == 1)
-		    	{
-		    		tp.isProcess = false;
-		    	}
 		    }
 		    else if(token.equals("A"))
 		    {
@@ -675,13 +663,13 @@ public class MainClass {
 		    	}
 		    	else
 		    	{
-		    		//UNDO ALL USING THE COMPLETED OPERATIONS???
+		    		//DISCARD AFTER IMAGE
 		    	}
 		    }
 		    else if(token.equals("C"))
 		    {
 		    	//COMMIT
-		    	//FLUSH ALL MEMORY???
+		    	//FLUSH TO DISK
 		    }
 		  }
 		  lineScanner.close();
@@ -860,9 +848,12 @@ public class MainClass {
 		{
 			TransProc currenttp = tplist.get(i);
 			String nxtop = currenttp.getNextOperation();
+			String split[]= StringUtils.split(nxtop," (,)");
+			WaitForGraph wfg = new WaitForGraph();
+			wfg.initWithNumberOfScripts(tplist.size());
 			
 			//Only pass operations that aren't B, A, or C
-			if (nxtop == "B" || nxtop == "A" || nxtop == "C")
+			if (split[0].equals("B") || split[0].equals("A") || split[0].equals("C"))
 			{
 				waitforflag = 2;
 			}
@@ -875,7 +866,6 @@ public class MainClass {
 			{
 				/////////////////////////////////////////////
 				//Here we're adding the lock to the TransProc class
-				String split[]= StringUtils.split(nxtop," (,)");
 				LockItems litem = new LockItems();
 				litem.operation = split[0];
 				litem.TableName = split[1];
@@ -897,7 +887,7 @@ public class MainClass {
 				currenttp.lockItem.add(litem);
 				/////////////////////////////////////////////
 
-				scriptAnalyzer(currenttp, nxtop);
+				scriptAnalyzer(currenttp.scriptNum, nxtop);
 				
 				/////////////////////////////////////////////
 				//Release read locks if a process, consult waitfor graph
@@ -913,22 +903,33 @@ public class MainClass {
 			else if (waitforflag == 1)
 			{
 				//send to waitfor graph
+				currenttp.decrementScriptPointer();
 			}
 			else if (waitforflag == 2)
 			{
-				//handle commit, abort, and begin
-				scriptAnalyzer(currenttp, nxtop);
-				
-				//Wipe the locks and the completed operations lists
-				//NOTE: this gets done for B, A, and C operations;
-				//clearing for any of these operations should be fine
-				currenttp.lockItem.clear();
-				currenttp.completedOperations.clear();
-				
-				/////////////////////////////////////////////
-				//TODO:CONSULT WAITFOR GRAPH AND REMOVE
-				//DEPENDENCIES HERE; CONSULT JOSE
-				/////////////////////////////////////////////
+				if (split.equals("B"))
+				{
+					currenttp.completedOperations.add(nxtop);
+					if(split[1].equals("0")) {currenttp.isProcess = true;}
+					else {currenttp.isProcess = false;}
+				}
+				else
+				{
+					//handle commit, abort, and begin
+					scriptAnalyzer(currenttp.scriptNum, nxtop);
+					
+					//Wipe the locks and the completed operations lists
+					//NOTE: this gets done for B, A, and C operations;
+					//clearing for any of these operations should be fine
+					currenttp.lockItem.clear();
+					currenttp.completedOperations.clear();
+					currenttp.isProcess = false;
+					
+					/////////////////////////////////////////////
+					//TODO:CONSULT WAITFOR GRAPH AND REMOVE
+					//DEPENDENCIES HERE; CONSULT JOSE
+					/////////////////////////////////////////////
+				}
 			}
 		}
 	}
