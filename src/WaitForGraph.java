@@ -58,8 +58,6 @@ public class WaitForGraph {
 	{
 		obj.settingadjMatrix(GraphTable);
 		ArrayList<Integer> listOfCycleNodes = obj.findingCycles();
-		return listOfCycleNodes;
-		
+		return listOfCycleNodes;		
 	}
-
 }

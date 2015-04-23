@@ -1965,7 +1965,7 @@ public class WriteToDisk {
 		return slottedPageList;
 	}
 	
-	public void deleteTable(String TableName) 
+	public void deleteTable(String TableName, int tpid) 
 	{
 		//File fid=new File("");
 		if(tableName.contains(TableName.toUpperCase()))

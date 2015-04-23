@@ -160,6 +160,123 @@ public class MainClass {
 		return p;
 	}
 	
+	public ArrayList<SingleRecordClass> getAllRecordsOfTrans(int TransNo)
+	{//this method gives you a list of records associated with a particular transcation number
+		ArrayList <SingleRecordClass> listOfRecords = new ArrayList<SingleRecordClass>();
+		
+		for(int i=0; i<RS.length; i++)
+			for(int j=0; j<RS[i].ID.length; j++)
+			{
+				if(RS[i].TransactionNumber[i]==-1)
+					continue;
+				if(RS[i].TransactionNumber[i]==TransNo)
+				{
+					SingleRecordClass temp = new SingleRecordClass();
+					temp.setRecord(RS[i].ID[j], RS[i].Name[j], RS[i].PhoneNo[j]);
+					listOfRecords.add(temp);
+				}
+			} //this part of the code goes through all the row store pages and holds records with a particular trans no
+		
+		for(int i=0; i<AfterImages.size(); i++)
+			for(int j=0; j<AfterImages.get(i).ID.length; j++)
+			{
+				MMRowStorePages p = AfterImages.get(i);
+				
+				if(p.TransactionNumber[i]==-1)
+					continue;
+				if(p.TransactionNumber[i]==TransNo)
+				{
+					SingleRecordClass temp = new SingleRecordClass();
+					temp.setRecord(p.ID[j], p.Name[j], p.PhoneNo[j]);
+					listOfRecords.add(temp);
+				}
+			} //this part of the code goes through all the afterimages and holds records with a particular trans no
+		
+		return listOfRecords;
+	}
+	
+	public int getGsInTheRecords(String AreaCode, ArrayList<SingleRecordClass> listOfRecords)
+	{//this function gets the number of records with AreaCode 
+		int count = 0;
+		
+		for(int i=0; i<listOfRecords.size(); i++)
+		{
+			SingleRecordClass temp = listOfRecords.get(i);
+			String tele = temp.TelephoneNo;
+			tele = tele.substring(0, 3);
+			if(tele.equals(AreaCode))
+				count++;
+		}
+		
+		return count;
+	}
+	
+	public ArrayList<SingleRecordClass> getMsInTheRecords(String AreaCode, ArrayList<SingleRecordClass> listOfRecords)
+	{
+		ArrayList<SingleRecordClass> newList = new ArrayList<SingleRecordClass>();
+		
+		for(int i=0; i<listOfRecords.size(); i++)
+		{
+			SingleRecordClass temp = listOfRecords.get(i);
+			String tele = temp.TelephoneNo;
+			tele = tele.substring(0, 3);
+			if(tele.equals(AreaCode))
+			{
+				newList.add(temp);
+			}
+		}
+		
+		return newList;
+	}
+	
+	public boolean pageContainsTransID(MMRowStorePages p,int TransNo)
+	{//this function checks if a particular page has ANY records with transaction ID TransNo
+		for(int i=0; i<p.ID.length; i++)
+		{
+			if(p.TransactionNumber[i]==TransNo)
+				return true;
+		}
+		return false;
+	}
+	
+	public void flushPagesWithTransIDToAfterCopy(int TransNo)
+	{//this method will go through the various row store pages and if it finds even a single record belonging
+		//to TransNo then it flushes the page into the aftercopy
+		for(int i=0; i<RS.length; i++)
+		{
+			if(pageContainsTransID(RS[i], TransNo))
+			{
+				//flush page to after copy
+				writeIntoAfterCopy(i);
+				RS[i] = new MMRowStorePages();
+				MetaRows[i] = new MetaMMR();
+				pgDates[i] = "0";
+			}
+		}
+			
+	}
+	
+	public void createDeleteRecordInAfterCopy(String TableName)
+	{//this function inserts a record into the aftercopy which signifies a delete
+		//TODO remember to call flushPagesWithTransIDToAfterCopy before calling this
+		MMRowStorePages p = new MMRowStorePages();
+		MetaMMR p2 = new MetaMMR();
+		
+		p.ID[0] = "-666";
+		p.Name[0] = TableName;
+		p.PhoneNo[0] = "123456";
+		p.TableName[0] = TableName;
+		p.TransactionNumber[0] = CurrentTransactionNumber;
+		
+		int pos = findPageToReplace();
+		RS[pos] = p;
+		MetaRows[pos] = p2;
+		writeIntoAfterCopy(pos);
+		RS[pos] = new MMRowStorePages();
+		MetaRows[pos] = new MetaMMR();
+		pgDates[pos] = "0";
+	}
+	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
 	{//TODO implement this
 		
@@ -199,7 +316,7 @@ public class MainClass {
 				RS[pageNumberOfExistingPageWithHashVal].ID[pos] = p.ID[i];
 				RS[pageNumberOfExistingPageWithHashVal].Name[pos] = p.Name[i];
 				RS[pageNumberOfExistingPageWithHashVal].PhoneNo[pos] = p.PhoneNo[i];
-				RS[pageNumberOfExistingPageWithHashVal].TransactionNumber[pos] = CurrentTransactionNumber;
+				RS[pageNumberOfExistingPageWithHashVal].TransactionNumber[pos] = p.TransactionNumber[i];
 				
 				if(pos==15)
 				{ //meaning that the page is full
@@ -247,7 +364,7 @@ public class MainClass {
 			RS[newPageForDump].ID[k-l] = p.ID[i];
 			RS[newPageForDump].Name[k-l] = p.Name[i];
 			RS[newPageForDump].PhoneNo[k-l] = p.PhoneNo[i];
-			RS[newPageForDump].TransactionNumber[k-l] = CurrentTransactionNumber;
+			RS[newPageForDump].TransactionNumber[k-l] = p.TransactionNumber[i];
 			
 			//System.out.println("Inserted page is ");
 			//RS[newPageForDump].displayRows();
@@ -310,6 +427,7 @@ public class MainClass {
 			RS[InsertPagePos].Name[0] = Name;
 			RS[InsertPagePos].PhoneNo[0] = PhoneNo;
 			RS[InsertPagePos].TableName[0] = TableName;
+			RS[InsertPagePos].TransactionNumber[0] = CurrentTransactionNumber;
 		}
 		else
 		{
@@ -320,6 +438,7 @@ public class MainClass {
 			RS[InsertPagePos].Name[i] = Name;
 			RS[InsertPagePos].PhoneNo[i] = PhoneNo;
 			RS[InsertPagePos].TableName[i] = TableName;
+			RS[InsertPagePos].TransactionNumber[i] = CurrentTransactionNumber;
 			if(i==15)
 			{
 				//page is full so flush to disk
@@ -493,7 +612,7 @@ public class MainClass {
 	}
 
 	
-	public void scriptAnalyzer(TransProc tp, String nextOp)throws IOException
+	public void scriptAnalyzer(int tpid, String nextOp)throws IOException
 	{
 		  Scanner lineScanner = new Scanner(nextOp);
 		  while (lineScanner.hasNext()) {
@@ -502,7 +621,7 @@ public class MainClass {
 		    {
 		    	String tableName = lineScanner.next(); //this is for table name
 		    	String test = lineScanner.next(); //this is for ID
-		    	retrieveWithID(Integer.parseInt(test),tableName);
+		    	retrieveWithID(Integer.parseInt(test),tableName, tpid);
 		    }
 		    else if(token.equals("I"))
 		    {
@@ -514,7 +633,7 @@ public class MainClass {
 		    	String PhoneNo = lineScanner.next(); //this gives phone no
 		    	PhoneNo = PhoneNo.substring(0,PhoneNo.length()-1);
 		    	
-		    	insertIntoTable( ID,  Name,  PhoneNo, tableName);
+		    	insertIntoTable( ID,  Name,  PhoneNo, tableName, tpid);
 		    }
 		    else if(token.equals("G"))
 		    {
@@ -532,20 +651,8 @@ public class MainClass {
 		    else if(token.equals("D"))
 		    {
 		    	String tableName= lineScanner.next();
-		    	obj.deleteTable(tableName);
+		    	obj.deleteTable(tableName, tpid);
 		    	logWriter("Deleted : "+tableName);
-		    }
-		    else if(token.equals("B"))
-		    {
-		    	int tpType = Integer.parseInt(lineScanner.next());
-		    	if(tpType == 0)
-		    	{
-		    		tp.isProcess = true;
-		    	}
-		    	else if (tpType == 1)
-		    	{
-		    		tp.isProcess = false;
-		    	}
 		    }
 		    else if(token.equals("A"))
 		    {
@@ -556,13 +663,13 @@ public class MainClass {
 		    	}
 		    	else
 		    	{
-		    		//UNDO ALL USING THE COMPLETED OPERATIONS???
+		    		//DISCARD AFTER IMAGE
 		    	}
 		    }
 		    else if(token.equals("C"))
 		    {
 		    	//COMMIT
-		    	//FLUSH ALL MEMORY???
+		    	//FLUSH TO DISK
 		    }
 		  }
 		  lineScanner.close();
@@ -741,9 +848,12 @@ public class MainClass {
 		{
 			TransProc currenttp = tplist.get(i);
 			String nxtop = currenttp.getNextOperation();
+			String split[]= StringUtils.split(nxtop," (,)");
+			WaitForGraph wfg = new WaitForGraph();
+			wfg.initWithNumberOfScripts(tplist.size());
 			
 			//Only pass operations that aren't B, A, or C
-			if (nxtop == "B" || nxtop == "A" || nxtop == "C")
+			if (split[0].equals("B") || split[0].equals("A") || split[0].equals("C"))
 			{
 				waitforflag = 2;
 			}
@@ -756,7 +866,6 @@ public class MainClass {
 			{
 				/////////////////////////////////////////////
 				//Here we're adding the lock to the TransProc class
-				String split[]= StringUtils.split(nxtop," (,)");
 				LockItems litem = new LockItems();
 				litem.operation = split[0];
 				litem.TableName = split[1];
@@ -778,7 +887,7 @@ public class MainClass {
 				currenttp.lockItem.add(litem);
 				/////////////////////////////////////////////
 
-				scriptAnalyzer(currenttp, nxtop);
+				scriptAnalyzer(currenttp.scriptNum, nxtop);
 				
 				/////////////////////////////////////////////
 				//Release read locks if a process, consult waitfor graph
@@ -794,22 +903,33 @@ public class MainClass {
 			else if (waitforflag == 1)
 			{
 				//send to waitfor graph
+				currenttp.decrementScriptPointer();
 			}
 			else if (waitforflag == 2)
 			{
-				//handle commit, abort, and begin
-				scriptAnalyzer(currenttp, nxtop);
-				
-				//Wipe the locks and the completed operations lists
-				//NOTE: this gets done for B, A, and C operations;
-				//clearing for any of these operations should be fine
-				currenttp.lockItem.clear();
-				currenttp.completedOperations.clear();
-				
-				/////////////////////////////////////////////
-				//TODO:CONSULT WAITFOR GRAPH AND REMOVE
-				//DEPENDENCIES HERE; CONSULT JOSE
-				/////////////////////////////////////////////
+				if (split.equals("B"))
+				{
+					currenttp.completedOperations.add(nxtop);
+					if(split[1].equals("0")) {currenttp.isProcess = true;}
+					else {currenttp.isProcess = false;}
+				}
+				else
+				{
+					//handle commit, abort, and begin
+					scriptAnalyzer(currenttp.scriptNum, nxtop);
+					
+					//Wipe the locks and the completed operations lists
+					//NOTE: this gets done for B, A, and C operations;
+					//clearing for any of these operations should be fine
+					currenttp.lockItem.clear();
+					currenttp.completedOperations.clear();
+					currenttp.isProcess = false;
+					
+					/////////////////////////////////////////////
+					//TODO:CONSULT WAITFOR GRAPH AND REMOVE
+					//DEPENDENCIES HERE; CONSULT JOSE
+					/////////////////////////////////////////////
+				}
 			}
 		}
 	}
