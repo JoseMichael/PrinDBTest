@@ -283,6 +283,20 @@ public class MainClass {
 			
 	}
 	
+	public boolean afterCopyContainsDeleteOnTable(String tablename, int TransNo)
+	{
+		for(int i=0; i<AfterImages.size(); i++)
+		{
+			MMRowStorePages p = AfterImages.get(i);
+			
+			if(p.ID[0]=="-666"&&p.TransactionNumber[0]==TransNo&&p.TableName.equals(tablename))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void createDeleteRecordInAfterCopy(String TableName)
 	{//this function inserts a record into the aftercopy which signifies a delete
 		//TODO remember to call flushPagesWithTransIDToAfterCopy before calling this
@@ -690,7 +704,7 @@ public class MainClass {
 		    else if(token.equals("D"))
 		    {
 		    	String tableName= lineScanner.next();
-		    	obj.deleteTable(tableName, tpid);
+		    	//obj.deleteTable(tableName, tpid);
 		    	logWriter("Deleted : "+tableName);
 		    }
 		    else if(token.equals("A"))
