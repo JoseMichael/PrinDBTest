@@ -435,6 +435,9 @@ public class MandG
 		/////// We now have a list of ids that match our query ///////////////////
 		//////////////////////////////////////////////////////////////////////////
 
+		//MainClass mc = new MainClass();
+		
+		
 		//Output our answer
 		for(int i = 0;i < answerList.size();i++)
 		{
@@ -451,7 +454,7 @@ public class MandG
 		}
 	}
 	
-	public void GQuery(String tableid, String areacode, int MMPAGES, WriteToDisk obj) 
+	public int GQuery(String tableid, String areacode, int MMPAGES, WriteToDisk obj) 
 	{
 		wtd = obj;
 		
@@ -572,9 +575,10 @@ public class MandG
 			//Search the page we just put into main memory for our area code and keep a running count
 			runningcount += countPage(MMPAGELIST.get(index).getData(), areacode);
 		}
-		String output = "GCount: " + Integer.toString(runningcount);
-		logWriter(output);
-		System.out.println(output);
+		//String output = "GCount: " + Integer.toString(runningcount);
+		//logWriter(output);
+		//System.out.println(output);
+		return runningcount;
 	}
 
 	@SuppressWarnings("rawtypes")
