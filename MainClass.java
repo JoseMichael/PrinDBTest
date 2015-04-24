@@ -638,11 +638,59 @@ public class MainClass {
 		pgDates[pageNumber] = sdf.format(cal.getTime());
 	}
 	
+	//Checks if the given Id exists in the memory or the after copy
+	public boolean checkIfIdExistsInMemoryOrAfterCopy(String TableName, int Id)
+	{
+		
+		boolean response=false;
+		for(int i=0; i<RS.length; i++)
+		{
+			for(int j=0; j<RS[i].ID.length; j++)
+		
+			{
+				if(RS[i].TransactionNumber[i]==-1)
+					continue;
+				if(RS[i].TransactionNumber[i]==CurrentTransactionNumber && RS[i].TableName[j].equals(TableName) && RS[i].ID[j].equals(Integer.toString(Id)))
+				{
+					response=true;
+					break;
+				}
+			} //this part of the code goes through all the row store pages and holds records with a particular trans no
+			if(response==true)
+				break;
+		}
+		
+		if(response==false)
+		{
+			for(int i=0; i<AfterImages.size(); i++)
+			{
+				for(int j=0; j<AfterImages.get(i).ID.length; j++)
+				{
+					MMRowStorePages p = AfterImages.get(i);
+					
+					if(p.TransactionNumber[i]==-1)
+						continue;
+					if(p.TransactionNumber[i]==CurrentTransactionNumber && p.TableName[j].equals(TableName) && p.ID.equals(Integer.toString(Id)) )
+					{
+						response=true;
+						break;
+					}
+				} //this part of the code goes through all the afterimages and holds records with a particular trans no
+				if(response==true)
+					break;
+			}
+		}
+		
+		return response;
+	}
+	
 	public void retrieveWithID(int IDval, String TableName, int tpid) //IDval is set as int here
 	{
 		recordCounter = 0;
 		AnsPage = new MMRowStorePages();
 		AnsPageCount = 0;
+		
+		
 		
 		int hashVal = IDval % 16;
 		DiskPage pageWithID = getDiskPage("ID",hashVal,TableName);
