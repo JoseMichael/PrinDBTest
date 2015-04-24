@@ -1074,12 +1074,13 @@ public class MainClass {
 			for (int i = 0; i < tplist.size(); i++)
 			{
 				TransProc currenttp = tplist.get(i);
-				String nxtop = currenttp.getNextOperation();
+				
 				currenttp.isCompleted();
 				if(currenttp.isOver)
 				{
 					continue;
 				}
+				String nxtop = currenttp.getNextOperation();
 				String split[]= StringUtils.split(nxtop," (,)");
 				
 				
@@ -1251,12 +1252,13 @@ public class MainClass {
 				for(int z = 0; z < linestopull; z++)
 				{
 					TransProc currenttp = tplist.get(intlist.get(i));
-					String nxtop = currenttp.getNextOperation();
+					
 					currenttp.isCompleted();
 					if(currenttp.isOver)
 					{
 						continue;
 					}
+					String nxtop = currenttp.getNextOperation();
 					String split[]= StringUtils.split(nxtop," (,)");
 					
 					//Only pass operations that aren't B, A, or C

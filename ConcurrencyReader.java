@@ -58,6 +58,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -103,6 +104,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											
 											break;
@@ -144,6 +146,7 @@ public class ConcurrencyReader
 													k.skipToTransactionEnd();
 												}
 											}
+											System.out.println("\nDeadlock");
 										}
 									
 										break;
@@ -170,6 +173,7 @@ public class ConcurrencyReader
 													k.skipToTransactionEnd();
 												}
 											}
+											System.out.println("\nDeadlock");
 										}
 										break;
 									}
@@ -197,6 +201,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}
@@ -230,6 +235,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;
 												}
@@ -263,6 +269,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}
@@ -311,6 +318,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}
@@ -340,6 +348,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}
@@ -374,6 +383,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -399,6 +409,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -442,6 +453,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}//if same process has an Insert on that table
@@ -475,6 +487,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;
 												}
@@ -524,6 +537,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -548,6 +562,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}
@@ -572,6 +587,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;
 												}
@@ -596,6 +612,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}
@@ -620,6 +637,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;
 														}
@@ -671,6 +689,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}																							
@@ -699,6 +718,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}																																				
@@ -738,6 +758,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;																																			
 												}
@@ -763,6 +784,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;																																																	
 												}
@@ -814,6 +836,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;	
 														}																																	
@@ -842,6 +865,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;
 														}																																				
@@ -883,6 +907,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;																																			
 														}
@@ -908,6 +933,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;																																																	
 														}
@@ -955,6 +981,7 @@ public class ConcurrencyReader
 													k.skipToTransactionEnd();
 												}
 											}
+											System.out.println("\nDeadlock");
 										}
 										break;
 									}
@@ -980,10 +1007,12 @@ public class ConcurrencyReader
 													k.skipToTransactionEnd();
 												}
 											}
+											System.out.println("\nDeadlock");
 										}
 										break;
 									}
 								}
+								
 						}
 					}
 					else//Transaction
@@ -1015,6 +1044,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -1061,6 +1091,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}//What if same transaction?
@@ -1071,6 +1102,114 @@ public class ConcurrencyReader
 										}
 									}
 								}
+								else
+									if(lock.operation.equals("R"))
+									{
+										if(lock.TableName.equals(TableName))
+										{
+											int id= lock.schema.getId();
+											if(id==Integer.parseInt(split[2]))
+											{		
+												if(currentTransactionNumber!=tp.scriptNum)
+												{
+													flag=1;
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+														System.out.println("\nDeadlock");
+													}
+													break;
+												}
+												
+											}
+										}
+									}
+									else
+										if(lock.operation.equals("M"))
+										{
+											if(lock.TableName.equals(TableName))
+										    {
+												//For phone number in the lock list
+												String phone= lock.schema.getPhone();
+												String phArray[]=StringUtils.split(phone,"-");
+												String areaCode=phArray[0];
+												//For phone number of the current transaction that wants to acquire a lock
+												String ph[]= StringUtils.split(split[4],"-");
+												if(areaCode.equals(ph[0]))
+												{
+													if(currentTransactionNumber!=tp.scriptNum)
+													{
+														flag=1;
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+															System.out.println("\nDeadlock");
+														}
+														break;
+													}													
+												}
+										    }
+										}
+										else
+											if(lock.operation.equals("G"))
+											{
+												if(lock.TableName.equals(TableName))
+											    {
+													//For phone number in the lock list
+													String phone= lock.schema.getPhone();
+													String phArray[]=StringUtils.split(phone,"-");
+													String areaCode=phArray[0];
+													//For phone number of the current transaction that wants to acquire a lock
+													String ph[]= StringUtils.split(split[4],"-");
+													if(areaCode.equals(ph[0]))
+													{
+														if(currentTransactionNumber!=tp.scriptNum)
+														{
+															flag=1;
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+																System.out.println("\nDeadlock");
+															}
+															break;
+														}
+														
+													}
+											    }
+											}
 						}
 					}
 					if(flag!=0 || newFlag==1)
@@ -1111,6 +1250,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;																			
 										}
@@ -1136,6 +1276,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -1171,6 +1312,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}
@@ -1200,6 +1342,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}//Reader should check if same transaction has a delete operation on the same table
@@ -1242,6 +1385,7 @@ public class ConcurrencyReader
 														k.skipToTransactionEnd();
 													}
 												}
+												System.out.println("\nDeadlock");
 											}
 											break;
 										}
@@ -1266,6 +1410,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}
@@ -1298,6 +1443,7 @@ public class ConcurrencyReader
 															k.skipToTransactionEnd();
 														}
 													}
+													System.out.println("\nDeadlock");
 												}
 												break;
 											}//When scripts are same //The scriptAnalyser should check for the prev insertions on the same table
@@ -1330,6 +1476,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;
 												}//When scripts are same //The scriptAnalyser should check for the prev operations on the same table
@@ -1357,6 +1504,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}
@@ -1402,6 +1550,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;
 														}//ScriptAnalyzer should check for previous M & G
@@ -1429,6 +1578,7 @@ public class ConcurrencyReader
 																			k.skipToTransactionEnd();
 																		}
 																	}
+																	System.out.println("\nDeadlock");
 																}
 																break;
 															}//ScriptAnalyzer should check for previous M & G
@@ -1479,6 +1629,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;																																		
 												}
@@ -1504,6 +1655,7 @@ public class ConcurrencyReader
 																k.skipToTransactionEnd();
 															}
 														}
+														System.out.println("\nDeadlock");
 													}
 													break;																																																
 												}
@@ -1544,6 +1696,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}																																															
@@ -1572,6 +1725,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;
 													}																																																	
@@ -1622,6 +1776,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;																																			
 													}
@@ -1647,6 +1802,7 @@ public class ConcurrencyReader
 																	k.skipToTransactionEnd();
 																}
 															}
+															System.out.println("\nDeadlock");
 														}
 														break;																																																
 													}
@@ -1687,6 +1843,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;
 														}																																															
@@ -1715,6 +1872,7 @@ public class ConcurrencyReader
 																		k.skipToTransactionEnd();
 																	}
 																}
+																System.out.println("\nDeadlock");
 															}
 															break;
 														}																																																	

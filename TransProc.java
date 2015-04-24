@@ -37,10 +37,10 @@ public class TransProc {
 	{
 		String operation="";
 		int index=getIndex();
-		if(index++<=script.size())
+		if(index+1<script.size())
 		{
-			setIndex(index++);
-			if(index<script.size())
+			setIndex(index+1);
+			if(index<=script.size())
 				operation=script.get(getIndex());
 			else
 				operation="";
@@ -68,14 +68,18 @@ public class TransProc {
 					break;
 				}
 			}
-			indexVal++;
+			if(indexVal<script.size()-1)
+				indexVal++;
+			else
+				break;
+			
 		}
 		
 	}
 	
 	public void isCompleted() 
 	{
-		if(index==script.size())
+		if(index==script.size()-1)
 			isOver=true;
 		
 	}

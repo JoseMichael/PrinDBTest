@@ -2037,7 +2037,8 @@ public class WriteToDisk {
 			{
 				while((line=br.readLine())!=null)
 				{
-					scriptList.add(line);
+					if(!line.trim().equals("") && !line.trim().equals(null))
+						scriptList.add(line);
 				}
 			} catch (IOException e) {
 				
