@@ -256,6 +256,30 @@ public class MainClass {
 		return newList;
 	}
 	
+	//Function called from the scriptAnalyzer for the M Query.
+	//gets the in memory and after copy data
+	//Checks for a delete in the memory and if it exists then don't call the column store MQuery else call it
+	public void executeOperationOnM(String TableName,String AreaCode)
+	{
+		ArrayList<SingleRecordClass> singleList=getAllRecordsOfTrans(CurrentTransactionNumber);
+		//gets the in memory and after copy data
+		ArrayList<SingleRecordClass> finalList=getMsInTheRecords(AreaCode,singleList);
+		//Check for a delete on this table 
+		boolean answer=afterCopyContainsDeleteOnTable(TableName, CurrentTransactionNumber);
+		//If no delete exists then call the Column store function to execute MQuery 
+		if(answer==false)
+		{
+			colstoreobj.MQuery(TableName, AreaCode, numberOfPages, obj);
+		}
+		//Print the in memory and After copy M operations
+		for(int i = 0; i < finalList.size();i++)
+    	{
+    		String output = "MRead: " + finalList.get(i).ID + "," + finalList.get(i).Name + "," + finalList.get(i).TelephoneNo;
+    		logWriter(output);
+			System.out.println(output);
+    	}
+		
+	}
 	public boolean pageContainsTransID(MMRowStorePages p,int TransNo)
 	{//this function checks if a particular page has ANY records with transaction ID TransNo
 		for(int i=0; i<p.ID.length; i++)
@@ -692,14 +716,8 @@ public class MainClass {
 		    {
 		    	String tableName= lineScanner.next();
 		    	String AreaCode = lineScanner.next();
-		    	colstoreobj.MQuery(tableName, AreaCode, numberOfPages, obj);
-		    	ArrayList<SingleRecordClass> myrecs = getMsInTheRecords(AreaCode, getAllRecordsOfTrans(tpid));
-		    	for(int i = 0; i < myrecs.size();i++)
-		    	{
-		    		String output = "MRead: " + myrecs.get(i).ID + "," + myrecs.get(i).Name + "," + myrecs.get(i).TelephoneNo;
-		    		logWriter(output);
-					System.out.println(output);
-		    	}
+		    	executeOperationOnM(tableName, AreaCode);
+		    	
 		    }
 		    else if(token.equals("D"))
 		    {
