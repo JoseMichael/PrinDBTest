@@ -1313,8 +1313,12 @@ public class MainClass {
 			{
 				//Choose a random number between 1 and remaining lines in file
 				//NOTE: Math should be right, check here if errors start occurring though
-				int linestopull = rng.nextInt(tplist.get(intlist.get(i)).script.size() - tplist.get(intlist.get(i)).index);
-
+				int linestopull = Math.abs(rng.nextInt());
+				int linesremaining = tplist.get(intlist.get(i)).script.size() - tplist.get(intlist.get(i)).index;
+				if (linestopull > linesremaining)
+				{
+					linestopull = linesremaining;
+				}
 				for(int z = 0; z < linestopull; z++)
 				{
 					TransProc currenttp = tplist.get(intlist.get(i));
