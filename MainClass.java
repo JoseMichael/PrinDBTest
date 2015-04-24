@@ -841,6 +841,8 @@ public class MainClass {
 		    else if(token.equals("A"))
 		    {
 		    	
+		    	flushPagesWithTransIDToAfterCopy(CurrentTransactionNumber);
+		    	
 		    	for(int i=0; i<AfterImages.size(); i++)
 		    	{
 		    		MMRowStorePages p = AfterImages.get(i);
@@ -862,6 +864,8 @@ public class MainClass {
 		    {
 		    	//COMMIT
 		    	//FLUSH TO DISK
+		    	
+		    	flushPagesWithTransIDToAfterCopy(CurrentTransactionNumber);
 		    	
 		    	for(int i=0; i<AfterImages.size(); i++)
 		    	{
