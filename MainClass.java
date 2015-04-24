@@ -358,6 +358,14 @@ public class MainClass {
 		RS[pos] = new MMRowStorePages();
 		MetaRows[pos] = new MetaMMR();
 		pgDates[pos] = "0";
+		
+		for(int i=0; i<AfterImages.size(); i++)
+    	{
+    		MMRowStorePages page = AfterImages.get(i);
+    		page = deleteOldInsertsFromAfterCopy(CurrentTransactionNumber, page, TableName);
+    		AfterImages.set(i, page);
+    		
+    	}
 	}
 
 	public boolean checkForIDInDisk(String ID, String tablename)
