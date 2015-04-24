@@ -1,10 +1,12 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -752,6 +754,7 @@ public class MainClass {
 		return sch;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void retrieveWithID(int IDval, String TableName, int tpid) //IDval is set as int here
 	{
 		recordCounter = 0;
@@ -761,35 +764,23 @@ public class MainClass {
 		Schema schema= checkIfIdExistsInMemoryOrAfterCopy(TableName, IDval);
 		if(schema==null)
 		{
-			int hashVal = IDval % 16;
+			 int hashVal = IDval % 16;
+			
 			DiskPage pageWithID = getDiskPage("ID",hashVal,TableName);
 			int numberOfRecords = pageWithID.numberOfRecords(); // this is used to find no. of records in that page
 			DiskPage pageWithName = getDiskPage("Name",hashVal,TableName);
 			DiskPage pageWithNumber = getDiskPage("Phone",hashVal,TableName);
-			
-			 
-			while(numberOfRecords > recordCounter)
+			int i=pageWithID.indexOf(Integer.toString(IDval));
+			int j=pageWithID.numberOfRecords();
+			if(i!=j)
 			{
-				int initPage = findPageToReplace();
-				/*if(initPage>RS.length)
-					break; //this is used to ensure that once all the pages are full the code exits
-					this piece of code was made redundant as I used time to swap pages */
-					
-				RS[initPage] = new MMRowStorePages();
-				logWriter("SWAP IN T-"+TableName+" P-"+initPage+" B-"+hashVal);
-				fillPage(RS[initPage],pageWithID,pageWithName,pageWithNumber,IDval,initPage);
-				//initPage ++;
-				
+				String id=pageWithID.getValue(i) ;
+				String name=pageWithName.getValue(i);
+				String phone=pageWithNumber.getValue(i);
+				logWriter("Read : "+ id+", "+ name+", "+phone);
 			}
-			int AnsPagePos = findPageToReplace(); //this var will decide where the ans page will reside
-			RS[AnsPagePos] = AnsPage;
-			updateCalendar();
-			pgDates[AnsPagePos] = sdf.format(cal.getTime());
-			AnsPage.displayRows();
-			if(AnsPage.ID[0]==null)
-				logWriter("Value does not exist");
 			else
-				logWriter("Read : "+AnsPage.ID[0]+", "+AnsPage.Name[0]+", "+AnsPage.PhoneNo[0]);
+				logWriter("Value does not exist");
 
 		}
 		
@@ -890,42 +881,59 @@ public class MainClass {
 
 	public static void main(String args[])throws IOException
 	{
-		//used to take size of buffer and allocate space for row store pages
-		System.out.println("Please enter the size of the buffer");
-		Scanner sc = new Scanner(System.in);
-		int buffersize = sc.nextInt();
-		System.out.println();
-		//Jesse's code to read scripts and seed
-		System.out.println("Please enter total number of scripts to use");
-		System.out.println("-------------------------------------------");
-		int nmbrOfScripts = sc.nextInt();
-		System.out.println();
-		List<String> filepaths = new ArrayList<String>();
-		for(int i = 0; i < nmbrOfScripts; i++)
-		{
-			System.out.println("Please enter the script names" + i);
-			System.out.println("---------------------------------------");
-			filepaths.add(sc.nextLine());
-			System.out.println();
-		}
-		
-		System.out.println("Please select concurrency reading method");
-		System.out.println("----------------------------------------");
-		System.out.println("1 - Round Robin");
-		System.out.println("2 - Random");
-		System.out.println("----------------------------------------");
-		System.out.print("Enter a number: ");
-		int rdmethod = sc.nextInt();
-		
-		System.out.println();
+		int propfile = 1; //set to 1 to load from properties file
+		int nmbrOfScripts = 0;
+		int buffersize = 0;
+		List<String> filelist = new ArrayList<String>();
+		int rdmethod = 0;
 		int rngseed = 0;
-		if (rdmethod == 2)
+		Scanner sc = new Scanner(System.in);
+		if(propfile == 1)
 		{
-			System.out.println("Please enter a seed for the RNG");
-			System.out.println("-------------------------------");
-			rngseed = sc.nextInt();
+			//used to take size of buffer and allocate space for row store pages
+			System.out.println("Please enter the size of the buffer");
+			buffersize = Integer.parseInt(sc.nextLine());
+			System.out.println();
+			//Jesse's code to read scripts and seed
+			System.out.println("Please enter total number of scripts to use");
+			System.out.println("-------------------------------------------");
+			nmbrOfScripts = Integer.parseInt(sc.nextLine());
+			System.out.println();
+			for(int i = 0; i < nmbrOfScripts; i++)
+			{
+				System.out.println("Please enter the script name for file " + (i + 1));
+				System.out.println("---------------------------------------");
+				filelist.add(sc.nextLine());
+				System.out.println();
+			}
+			System.out.println("Please select concurrency reading method");
+			System.out.println("----------------------------------------");
+			System.out.println("1 - Round Robin");
+			System.out.println("2 - Random");
+			System.out.println("----------------------------------------");
+			System.out.print("Enter a number: ");
+			rdmethod = sc.nextInt();
+			System.out.println();
+			if (rdmethod == 2)
+			{
+				System.out.println("Please enter a seed for the RNG");
+				System.out.println("-------------------------------");
+				rngseed = sc.nextInt();
+			}
 		}
-
+		else
+		{
+			FileInputStream fstream = new FileInputStream("prop.txt");
+			BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+			buffersize = Integer.parseInt(br.readLine());
+			String[] temp = br.readLine().split(",");
+			for(int q = 0; q < temp.length; q++)
+			{
+				filelist.add(temp[q]);
+			}
+			rdmethod = Integer.parseInt(br.readLine());
+			br.close();
+		}
 		numberOfPages = ((buffersize)/512)/2;
 		RS = new MMRowStorePages[numberOfPages];
 		pgsUsed = new boolean[numberOfPages];
@@ -1030,10 +1038,11 @@ public class MainClass {
 		
 		//Start forming the list of TransProc objects as per the number of scripts	    
 		List<TransProc> tpList=new ArrayList<TransProc>();
-		for(int i=0;i<filepaths.size();i++) 
+		for(int i=0;i<filelist.size();i++) 
 		{
 			TransProc tp=new TransProc();
-			tp.script= obj.readScript(filepaths.get(i));
+			tp.script= obj.readScript(filelist.get(i));
+			tp.scriptNum=i;
 			tpList.add(tp);
 		}		
 		
@@ -1043,7 +1052,7 @@ public class MainClass {
 		{
 			rclass.roundRobinRead(tpList);
 		}
-		else if (rdmethod == 2) //random
+		else if(rdmethod == 2) //random
 		{
 			rclass.randomRead(tpList, rngseed);
 		}
@@ -1055,158 +1064,24 @@ public class MainClass {
 	public void roundRobinRead(List<TransProc> tplist) throws IOException
 	{
 		ConcurrencyReader cc = new ConcurrencyReader();
-		int waitforflag = 0;
-		for (int i = 0; i < tplist.size(); i++)
-		{
-			TransProc currenttp = tplist.get(i);
-			String nxtop = currenttp.getNextOperation();
-			String split[]= StringUtils.split(nxtop," (,)");
-			WaitForGraph wfg = new WaitForGraph();
-			wfg.initWithNumberOfScripts(tplist.size());
-			
-			//Only pass operations that aren't B, A, or C
-			if (split[0].equals("B") || split[0].equals("A") || split[0].equals("C"))
-			{
-				waitforflag = 2;
-			}
-			else
-			{
-				waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.getIndex(),wfg);
-			}
-			
-			if (waitforflag == 0)
-			{
-				/////////////////////////////////////////////
-				//Here we're adding the lock to the TransProc class
-				LockItems litem = new LockItems();
-				litem.operation = split[0];
-				litem.TableName = split[1];
-				
-				// R and I get parsed the same
-				if(split[0] == "I" || split[0] == "R")
-				{
-					litem.schema.setId(Integer.parseInt(split[2]));
-					litem.schema.setName(split[3]);
-					litem.schema.setPhone(split[4]);
-				}
-				//M and G get parsed the same
-				else if(split[0] == "M" || split[0] == "G")
-				{
-					litem.schema.setPhone(split[2] + "-000-0000");
-				}
-				//NOTE: Don't need to parse D individually since it's just
-				//the operation and the tablename which we already have
-				currenttp.lockItem.add(litem);
-				/////////////////////////////////////////////
-
-				scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
-				
-				/////////////////////////////////////////////
-				//Release read locks if a process, consult waitfor graph
-				//and remove dependencies
-				if(currenttp.isProcess && (nxtop == "R" || nxtop == "G" || nxtop == "M"))
-				{
-					//Remove the recently added lock from the list
-					currenttp.lockItem.remove(currenttp.lockItem.size() - 1);
-				}
-				/////////////////////////////////////////////
-				currenttp.completedOperations.add(nxtop);
-			}
-			else if (waitforflag == 1)
-			{
-				//send to waitfor graph
-				int currIndex=currenttp.getIndex();
-				String tOp= currenttp.script.get(currIndex);
-				String c=String.valueOf(tOp.charAt(0));
-				if(c.equals("C") || c.equals("A"))
-				{
-					scriptAnalyzer(currenttp.scriptNum, "A", currenttp.isProcess);
-					currenttp.completedOperations=null;
-					currenttp.isWaiting=false;
-					currenttp.isProcess=false;
-					
-				}
-				else
-					currenttp.decrementScriptPointer();
-				for(TransProc t:tplist)
-				{
-					if(t.isWaiting)
-					{
-						ArrayList<Integer> lockLinks=new ArrayList<>();
-						lockLinks=wfg.findAllLinksOf(t.scriptNum);
-						if(lockLinks.size()==0)
-							t.isWaiting=false;
-					}
-				}
-			}
-			else if (waitforflag == 2)
-			{
-				if (split[0].equals("B"))
-				{
-					currenttp.completedOperations.add(nxtop);
-					if(split[1].equals("0")) {currenttp.isProcess = true;}
-					else {currenttp.isProcess = false;}
-				}
-				else
-				{
-					//handle commit, abort, and begin
-					scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
-					
-					//Wipe the locks and the completed operations lists
-					//NOTE: this gets done for B, A, and C operations;
-					//clearing for any of these operations should be fine
-					currenttp.lockItem.clear();
-					currenttp.completedOperations.clear();
-					currenttp.isProcess = false;
-					
-					/////////////////////////////////////////////
-					//TODO:CONSULT WAITFOR GRAPH AND REMOVE
-					//DEPENDENCIES HERE; CONSULT JOSE
-					/////////////////////////////////////////////
-				}
-			}
-		}
-	}
-	
-	public void randomRead(List<TransProc> tplist, int rndseed) throws IOException
-	{
-		ConcurrencyReader cc = new ConcurrencyReader();
-		int waitforflag = 0;
-		ArrayList<Integer> myDeadLockList=new ArrayList<>();
-
 		WaitForGraph wfg = new WaitForGraph();
 		wfg.initWithNumberOfScripts(tplist.size());
+		int waitforflag = 0;
+		int activeFiles=0;
 		
-		////////////////////////////////////////////////////////////////////
-		// CODE TO GET RANDOMLY ORDERED LIST BASED ON SIZE OF TRANSPROC LIST
-		int usrseed = rndseed;
-		int listsize = tplist.size();
-		int deadlockCount=0;
-		Random rng = new Random(usrseed);
-		Set<Integer> intset = new LinkedHashSet<Integer>();
-		
-		while(intset.size() < listsize)
+		while(true)
 		{
-			int next = rng.nextInt(listsize);
-			intset.add(next);
-		}
-		
-		List<Integer> intlist = new ArrayList<Integer>();
-		intlist.addAll(intset);
-		// END ORDERED LIST CODE
-		////////////////////////////////////////////////////////////////////
-		
-		for (int i = 0; i < tplist.size(); i++)
-		{
-			//Choose a random number between 1 and remaining lines in file
-			//NOTE: Math should be right, check here if errors start occurring though
-			int linestopull = rng.nextInt(tplist.get(intlist.get(i)).script.size() - tplist.get(intlist.get(i)).index);
-
-			for(int z = 0; z < linestopull; z++)
+			for (int i = 0; i < tplist.size(); i++)
 			{
-				TransProc currenttp = tplist.get(intlist.get(i));
+				TransProc currenttp = tplist.get(i);
 				String nxtop = currenttp.getNextOperation();
+				currenttp.isCompleted();
+				if(currenttp.isOver)
+				{
+					continue;
+				}
 				String split[]= StringUtils.split(nxtop," (,)");
+				
 				
 				//Only pass operations that aren't B, A, or C
 				if (split[0].equals("B") || split[0].equals("A") || split[0].equals("C"))
@@ -1214,8 +1089,8 @@ public class MainClass {
 					waitforflag = 2;
 				}
 				else
-				{ 	
-					waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.getIndex(),wfg);
+				{
+					waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.scriptNum,wfg);
 				}
 				
 				if (waitforflag == 0)
@@ -1227,16 +1102,25 @@ public class MainClass {
 					litem.TableName = split[1];
 					
 					// R and I get parsed the same
-					if(split[0] == "I" || split[0] == "R")
+					if(split[0].equals("I") || split[0].equals("R"))
 					{
-						litem.schema.setId(Integer.parseInt(split[2]));
-						litem.schema.setName(split[3]);
-						litem.schema.setPhone(split[4]);
+						Schema newSchema=new Schema();
+						newSchema.setId(Integer.parseInt(split[2]));
+						if(split[0].equals("I"))
+						{												
+							newSchema.setName(split[3]);
+							newSchema.setPhone(split[4]);
+						}						
+						litem.schema=newSchema;
 					}
 					//M and G get parsed the same
-					else if(split[0] == "M" || split[0] == "G")
+					else if(split[0].equals("M") || split[0].equals("G"))
 					{
-						litem.schema.setPhone(split[2] + "-000-0000");
+						Schema newSchema=new Schema();
+						
+						newSchema.setPhone(split[2] + "-000-0000");
+						litem.schema=newSchema;
+						
 					}
 					//NOTE: Don't need to parse D individually since it's just
 					//the operation and the tablename which we already have
@@ -1248,7 +1132,7 @@ public class MainClass {
 					/////////////////////////////////////////////
 					//Release read locks if a process, consult waitfor graph
 					//and remove dependencies
-					if(currenttp.isProcess && (nxtop == "R" || nxtop == "G" || nxtop == "M"))
+					if(currenttp.isProcess && (split[0].equals("R") || split[0].equals("G") || split[0].equals("M")))
 					{
 						//Remove the recently added lock from the list
 						currenttp.lockItem.remove(currenttp.lockItem.size() - 1);
@@ -1258,6 +1142,7 @@ public class MainClass {
 				}
 				else if (waitforflag == 1)
 				{
+					//send to waitfor graph
 					int currIndex=currenttp.getIndex();
 					String tOp= currenttp.script.get(currIndex);
 					String c=String.valueOf(tOp.charAt(0));
@@ -1270,7 +1155,10 @@ public class MainClass {
 						
 					}
 					else
+					{
 						currenttp.decrementScriptPointer();
+						currenttp.isWaiting=true;
+					}
 					for(TransProc t:tplist)
 					{
 						if(t.isWaiting)
@@ -1309,6 +1197,193 @@ public class MainClass {
 					}
 				}
 			}
+			
+			for(TransProc h:tplist)
+			{
+				h.isCompleted();
+				if(!h.isOver)
+					activeFiles++;
+			}
+			if(activeFiles==0)
+				break;
+			else
+				activeFiles=0;
 		}
+
+	}
+	
+	public void randomRead(List<TransProc> tplist, int rndseed) throws IOException
+	{
+		ConcurrencyReader cc = new ConcurrencyReader();
+		int waitforflag = 0;
+		
+		WaitForGraph wfg = new WaitForGraph();
+		wfg.initWithNumberOfScripts(tplist.size());
+		
+		
+		////////////////////////////////////////////////////////////////////
+		// CODE TO GET RANDOMLY ORDERED LIST BASED ON SIZE OF TRANSPROC LIST
+		int usrseed = rndseed;
+		int listsize = tplist.size();
+		int deadlockCount=0;
+		Random rng = new Random(usrseed);
+		Set<Integer> intset = new LinkedHashSet<Integer>();
+		
+		while(intset.size() < listsize)
+		{
+			int next = rng.nextInt(listsize);
+			intset.add(next);
+		}
+		
+		List<Integer> intlist = new ArrayList<Integer>();
+		intlist.addAll(intset);
+		// END ORDERED LIST CODE
+		////////////////////////////////////////////////////////////////////
+		int activeFiles=0;
+		while(true)
+		{
+			for (int i = 0; i < tplist.size(); i++)
+			{
+				//Choose a random number between 1 and remaining lines in file
+				//NOTE: Math should be right, check here if errors start occurring though
+				int linestopull = rng.nextInt(tplist.get(intlist.get(i)).script.size() - tplist.get(intlist.get(i)).index);
+
+				for(int z = 0; z < linestopull; z++)
+				{
+					TransProc currenttp = tplist.get(intlist.get(i));
+					String nxtop = currenttp.getNextOperation();
+					currenttp.isCompleted();
+					if(currenttp.isOver)
+					{
+						continue;
+					}
+					String split[]= StringUtils.split(nxtop," (,)");
+					
+					//Only pass operations that aren't B, A, or C
+					if (split[0].equals("B") || split[0].equals("A") || split[0].equals("C"))
+					{
+						waitforflag = 2;
+					}
+					else
+					{ 	
+						waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.scriptNum,wfg);
+					}
+					
+					if (waitforflag == 0)
+					{
+						/////////////////////////////////////////////
+						//Here we're adding the lock to the TransProc class
+						LockItems litem = new LockItems();
+						litem.operation = split[0];
+						litem.TableName = split[1];
+						
+						// R and I get parsed the same
+						if(split[0].equals("I") || split[0].equals("R"))
+						{
+							Schema newSchema=new Schema();
+							newSchema.setId(Integer.parseInt(split[2]));
+							if(split[0].equals("I"))
+							{												
+								newSchema.setName(split[3]);
+								newSchema.setPhone(split[4]);
+							}						
+							litem.schema=newSchema;
+							
+						}
+						//M and G get parsed the same
+						else if(split[0].equals("M") || split[0].equals("G"))
+						{
+							Schema newSchema=new Schema();
+							
+							newSchema.setPhone(split[2] + "-000-0000");
+							litem.schema=newSchema;
+						}
+						//NOTE: Don't need to parse D individually since it's just
+						//the operation and the tablename which we already have
+						currenttp.lockItem.add(litem);
+						/////////////////////////////////////////////
+
+						scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
+						
+						/////////////////////////////////////////////
+						//Release read locks if a process, consult waitfor graph
+						//and remove dependencies
+						if(currenttp.isProcess && (split[0].equals("R") || split[0].equals("G") || split[0].equals("M")))
+						{
+							//Remove the recently added lock from the list
+							currenttp.lockItem.remove(currenttp.lockItem.size() - 1);
+						}
+						/////////////////////////////////////////////
+						currenttp.completedOperations.add(nxtop);
+					}
+					else if (waitforflag == 1)
+					{
+						int currIndex=currenttp.getIndex();
+						String tOp= currenttp.script.get(currIndex);
+						String c=String.valueOf(tOp.charAt(0));
+						if(c.equals("C") || c.equals("A"))
+						{
+							scriptAnalyzer(currenttp.scriptNum, "A", currenttp.isProcess);
+							currenttp.completedOperations=null;
+							currenttp.isWaiting=false;
+							currenttp.isProcess=false;
+							
+						}
+						else
+						{
+							currenttp.decrementScriptPointer();
+							currenttp.isWaiting=true;
+						}
+						for(TransProc t:tplist)
+						{
+							if(t.isWaiting)
+							{
+								ArrayList<Integer> lockLinks=new ArrayList<>();
+								lockLinks=wfg.findAllLinksOf(t.scriptNum);
+								if(lockLinks.size()==0)
+									t.isWaiting=false;
+							}
+						}
+					}
+					else if (waitforflag == 2)
+					{
+						if (split[0].equals("B"))
+						{
+							currenttp.completedOperations.add(nxtop);
+							if(split[1].equals("0")) {currenttp.isProcess = true;}
+							else {currenttp.isProcess = false;}
+						}
+						else
+						{
+							//handle commit, abort, and begin
+							scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
+							
+							//Wipe the locks and the completed operations lists
+							//NOTE: this gets done for B, A, and C operations;
+							//clearing for any of these operations should be fine
+							currenttp.lockItem.clear();
+							currenttp.completedOperations.clear();
+							currenttp.isProcess = false;
+							
+							/////////////////////////////////////////////
+							//TODO:CONSULT WAITFOR GRAPH AND REMOVE
+							//DEPENDENCIES HERE; CONSULT JOSE
+							/////////////////////////////////////////////
+						}
+					}
+				}
+			}
+			for(TransProc h:tplist)
+			{
+				h.isCompleted();
+				if(!h.isOver)
+					activeFiles++;
+				else
+					activeFiles=0;
+			}
+			if(activeFiles==0)
+				break;
+		}
+
 	}
 }

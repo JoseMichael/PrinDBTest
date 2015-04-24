@@ -25,7 +25,7 @@ public class TestCycles {
 			 nodes = new String[NoOfNodes];
 			 adjMatrix = new boolean[NoOfNodes][NoOfNodes];
 			
-			for (int i2 = 0; i2 < 10; i2++) {
+			for (int i2 = 0; i2 < NoOfNodes; i2++) {
 				nodes[i2] =  ""+i2;
 			}
 			

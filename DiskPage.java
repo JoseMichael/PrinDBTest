@@ -18,7 +18,10 @@ public class DiskPage {
 		while(valueToCheck != check)
 		{
 			i++;
-			check = getValue(i);
+			if(i<values.size())
+				check = getValue(i);
+			else
+				break;
 		}
 		return i;
 		

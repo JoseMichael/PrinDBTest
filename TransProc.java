@@ -15,8 +15,8 @@ public class TransProc {
 	public int scriptNum;
 	public boolean isWaiting=false;
 	public boolean isProcess=false;
-	public List<LockItems> lockItem;
-	
+	public List<LockItems> lockItem=new ArrayList<LockItems>();
+	public boolean isOver=false;
 	public int getIndex() {
 		return index;
 	}
@@ -40,7 +40,10 @@ public class TransProc {
 		if(index++<=script.size())
 		{
 			setIndex(index++);
-			operation=script.get(getIndex());
+			if(index<script.size())
+				operation=script.get(getIndex());
+			else
+				operation="";
 		}
 		return operation;
 	}
@@ -67,6 +70,13 @@ public class TransProc {
 			}
 			indexVal++;
 		}
+		
+	}
+	
+	public void isCompleted() 
+	{
+		if(index==script.size())
+			isOver=true;
 		
 	}
 }

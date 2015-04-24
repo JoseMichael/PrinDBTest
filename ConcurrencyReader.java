@@ -22,7 +22,7 @@ public class ConcurrencyReader
 		int flag=0,newFlag=0;
 		if(isProcess==true)
 		{
-			if(split[0].equals('I'))
+			if(split[0].equals("I"))
 			{
 				for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 				{
@@ -209,11 +209,11 @@ public class ConcurrencyReader
 										    {
 												//For phone number in the lock list
 												String phone= lock.schema.getPhone();
-												String phArray[]=StringUtils.split(phone);
-												int areaCode=Integer.parseInt(phArray[0]);
+												String phArray[]=StringUtils.split(phone,"-");
+												String areaCode=phArray[0];
 												//For phone number of the current transaction that wants to acquire a lock
 												String ph[]= StringUtils.split(split[4],"-");
-												if(areaCode==Integer.parseInt(ph[0]))
+												if(areaCode.equals(ph[0]))
 												{
 													flag=1;
 													wfg.setLink(currentTransactionNumber,tp.scriptNum);
@@ -242,11 +242,11 @@ public class ConcurrencyReader
 											    {
 													//For phone number in the lock list
 													String phone= lock.schema.getPhone();
-													String phArray[]=StringUtils.split(phone);
-													int areaCode=Integer.parseInt(phArray[0]);
+													String phArray[]=StringUtils.split(phone,"-");
+													String areaCode=phArray[0];
 													//For phone number of the current transaction that wants to acquire a lock
 													String ph[]= StringUtils.split(split[4],"-");
-													if(areaCode==Integer.parseInt(ph[0]))
+													if(areaCode.equals(ph[0]))
 													{
 														flag=1;
 														wfg.setLink(currentTransactionNumber,tp.scriptNum);
@@ -276,7 +276,7 @@ public class ConcurrencyReader
 				}
 			}
 			else
-				if(split[0].equals('R'))
+				if(split[0].equals("R"))
 				{
 					for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 					{
@@ -410,7 +410,7 @@ public class ConcurrencyReader
 					}
 				}
 				else
-					if(split[0].equals('D'))
+					if(split[0].equals("D"))
 					{
 						for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 						{
@@ -631,7 +631,7 @@ public class ConcurrencyReader
 						}
 					}
 					else
-						if(split[0].equals('M'))
+						if(split[0].equals("M"))
 						{
 							for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 							{
@@ -648,11 +648,11 @@ public class ConcurrencyReader
 											{
 												//For phone number in the lock list
 												String phone= lock.schema.getPhone();
-												String phArray[]=StringUtils.split(phone);
-												int areaCode=Integer.parseInt(phArray[0]);
+												String phArray[]=StringUtils.split(phone,"-");
+												String areaCode=phArray[0];
 												//For phone number of the current transaction that wants to acquire a lock
-												String ph[]= StringUtils.split(split[4],"-");
-												if(areaCode==Integer.parseInt(ph[0]))
+												String ph= split[2]; //StringUtils.split(split[4],"-");
+												if(areaCode.equals(ph))
 												{
 													if(currentTransactionNumber!=tp.scriptNum)
 													{											
@@ -717,11 +717,11 @@ public class ConcurrencyReader
 											{
 												//For phone number in the lock list
 												String phone= lock.schema.getPhone();
-												String phArray[]=StringUtils.split(phone);
-												int areaCode=Integer.parseInt(phArray[0]);
+												String phArray[]=StringUtils.split(phone,"-");
+												String areaCode=phArray[0];
 												//For phone number of the current transaction that wants to acquire a lock
-												String ph[]= StringUtils.split(split[4],"-");
-												if(areaCode==Integer.parseInt(ph[0]))
+												String ph= split[2] ; //StringUtils.split(split[4],"-");
+												if(areaCode.equals(ph))
 												{
 													flag=1;
 													wfg.setLink(currentTransactionNumber,tp.scriptNum);
@@ -774,7 +774,7 @@ public class ConcurrencyReader
 							}
 						}
 						else
-							if(split[0].equals('G'))
+							if(split[0].equals("G"))
 							{
 								for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 								{
@@ -791,11 +791,11 @@ public class ConcurrencyReader
 												{
 													//For phone number in the lock list
 													String phone= lock.schema.getPhone();
-													String phArray[]=StringUtils.split(phone);
-													int areaCode=Integer.parseInt(phArray[0]);
+													String phArray[]=StringUtils.split(phone,"-");
+													String areaCode=phArray[0];
 													//For phone number of the current transaction that wants to acquire a lock
-													String ph[]= StringUtils.split(split[4],"-");
-													if(areaCode==Integer.parseInt(ph[0]))
+													String ph= split[2];// StringUtils.split(split[4],"-");
+													if(areaCode.equals(ph))
 													{
 														if(currentTransactionNumber!=tp.scriptNum)
 														{
@@ -862,11 +862,11 @@ public class ConcurrencyReader
 													{
 														//For phone number in the lock list
 														String phone= lock.schema.getPhone();
-														String phArray[]=StringUtils.split(phone);
-														int areaCode=Integer.parseInt(phArray[0]);
+														String phArray[]=StringUtils.split(phone,"-");
+														String areaCode=phArray[0];
 														//For phone number of the current transaction that wants to acquire a lock
-														String ph[]= StringUtils.split(split[4],"-");
-														if(areaCode==Integer.parseInt(ph[0]))
+														String ph=split[2]; // StringUtils.split(split[4],"-");
+														if(areaCode.equals(ph))
 														{
 															flag=1;
 															wfg.setLink(currentTransactionNumber,tp.scriptNum);
@@ -922,7 +922,7 @@ public class ConcurrencyReader
 		}
 		else //For Current Transaction
 		{
-			if(split[0].equals('I'))
+			if(split[0].equals("I"))
 			{
 				for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 				{
@@ -1078,7 +1078,7 @@ public class ConcurrencyReader
 				}
 			}
 			else
-				if(split[0].equals('R'))
+				if(split[0].equals("R"))
 				{
 					for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 					{
@@ -1212,7 +1212,7 @@ public class ConcurrencyReader
 					}
 				}
 				else
-					if(split[0].equals('D'))
+					if(split[0].equals("D"))
 					{
 						for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 						{
@@ -1441,7 +1441,7 @@ public class ConcurrencyReader
 						}
 					}
 					else
-						if(split[0].equals('M'))
+						if(split[0].equals("M"))
 						{
 							for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 							{
@@ -1458,11 +1458,11 @@ public class ConcurrencyReader
 											{
 												//For phone number in the lock list
 												String phone= lock.schema.getPhone();
-												String phArray[]=StringUtils.split(phone);
-												int areaCode=Integer.parseInt(phArray[0]);
+												String phArray[]=StringUtils.split(phone,"-");
+												String areaCode=phArray[0];
 												//For phone number of the current transaction that wants to acquire a lock
-												String ph[]= StringUtils.split(split[4],"-");
-												if(areaCode==Integer.parseInt(ph[0]))
+												String ph= split[2]; //StringUtils.split(split[4],"-");
+												if(areaCode.equals(ph))
 												{
 													flag=1;
 													wfg.setLink(currentTransactionNumber,tp.scriptNum);
@@ -1521,11 +1521,11 @@ public class ConcurrencyReader
 											{
 												//For phone number in the lock list
 												String phone= lock.schema.getPhone();
-												String phArray[]=StringUtils.split(phone);
-												int areaCode=Integer.parseInt(phArray[0]);
+												String phArray[]=StringUtils.split(phone,"-");
+												String areaCode=phArray[0];
 												//For phone number of the current transaction that wants to acquire a lock
-												String ph[]= StringUtils.split(split[4],"-");
-												if(areaCode==Integer.parseInt(ph[0]))
+												String ph=split[2]; // StringUtils.split(split[4],"-");
+												if(areaCode.equals(ph))
 												{
 													if(currentTransactionNumber!=tp.scriptNum)
 													{
@@ -1584,7 +1584,7 @@ public class ConcurrencyReader
 							}
 						}
 						else
-							if(split[0].equals('G'))
+							if(split[0].equals("G"))
 							{
 								for(int tpIndex=0; tpIndex<tpList.size();tpIndex++)
 								{
@@ -1601,11 +1601,11 @@ public class ConcurrencyReader
 												{
 													//For phone number in the lock list
 													String phone= lock.schema.getPhone();
-													String phArray[]=StringUtils.split(phone);
-													int areaCode=Integer.parseInt(phArray[0]);
+													String phArray[]=StringUtils.split(phone,"-");
+													String areaCode=phArray[0];
 													//For phone number of the current transaction that wants to acquire a lock
-													String ph[]= StringUtils.split(split[4],"-");
-													if(areaCode==Integer.parseInt(ph[0]))
+													String ph=split[2]; // StringUtils.split(split[4],"-");
+													if(areaCode.equals(ph))
 													{
 														flag=1;
 														wfg.setLink(currentTransactionNumber,tp.scriptNum);
@@ -1664,11 +1664,11 @@ public class ConcurrencyReader
 												{
 													//For phone number in the lock list
 													String phone= lock.schema.getPhone();
-													String phArray[]=StringUtils.split(phone);
-													int areaCode=Integer.parseInt(phArray[0]);
+													String phArray[]=StringUtils.split(phone,"-");
+													String areaCode=phArray[0];
 													//For phone number of the current transaction that wants to acquire a lock
-													String ph[]= StringUtils.split(split[4],"-");
-													if(areaCode==Integer.parseInt(ph[0]))
+													String ph=split[2] ; // StringUtils.split(split[4],"-");
+													if(areaCode.equals(ph))
 													{
 														if(currentTransactionNumber!=tp.scriptNum)
 														{
