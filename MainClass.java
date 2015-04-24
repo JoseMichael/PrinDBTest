@@ -16,6 +16,8 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Set;
+import java.text.ParseException;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -47,6 +49,9 @@ public class MainClass {
 	static int numberOfPages;
 	
 	static int CurrentTransactionNumber;
+	public static int CommittedTransactions;
+	public static int ReadOperations;
+	public static int WriteOperations;
 	
 	/*static public void initArrayToFindPages(int a[])
 	{
@@ -115,7 +120,18 @@ public class MainClass {
 		AfterImagesMeta.add(MetaRows[pgNo]);
 	}
 	
-	public boolean afterCopyValuablDataCheck(int TransNo, MMRowStorePages p)
+	public void removeUnvaluableData()
+	{
+		for(int i = 0;i < AfterImages.size();i++)
+		{
+			if(!afterCopyValuablDataCheck(AfterImages.get(i)))
+			{
+				AfterImages.remove(i);
+			}
+		}
+	}
+	
+	public boolean afterCopyValuablDataCheck(MMRowStorePages p)
 	{//this function checks if an after copy has any valuable data, i.e. any record with trans no
 		int count = 0;
 		
@@ -1048,14 +1064,37 @@ public class MainClass {
 		
 		MainClass rclass = new MainClass();
 		
+		Date startTime = new Date();
+		Date endTime = new Date();
+		
+		try {
+			startTime = sdf.parse(setCurrentTime());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		if (rdmethod == 1) //round robin
 		{
 			rclass.roundRobinRead(tpList);
 		}
-		else if(rdmethod == 2) //random
+		else if (rdmethod == 2) //random
 		{
 			rclass.randomRead(tpList, rngseed);
 		}
+		try {
+			endTime = sdf.parse(setCurrentTime());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		long timeDiff = endTime.getTime() - startTime.getTime();
+		
+		System.out.println("Committed Transactions: " + CommittedTransactions);
+		System.out.println("Read Op Percentage: " + (ReadOperations/CommittedTransactions));
+		System.out.println("Write Op Percentage: " + (WriteOperations/CommittedTransactions));
+		System.out.println("Average Response Time (Milliseconds): " + timeDiff/CommittedTransactions);
 		
 		//closing scanner
 		sc.close();
@@ -1183,6 +1222,23 @@ public class MainClass {
 					{
 						//handle commit, abort, and begin
 						scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
+						
+						if(split[0].equals("C") || currenttp.isProcess)
+						{
+							CommittedTransactions += currenttp.completedOperations.size();
+							for (int m = 0; m < currenttp.completedOperations.size(); m++)
+							{
+								if(currenttp.completedOperations.get(m).split(" ")[0].equals("D") ||
+										currenttp.completedOperations.get(m).split(" ")[0].equals("I"))
+								{
+									WriteOperations += 1;
+								}
+								else
+								{
+									ReadOperations += 1;
+								}
+							}
+						}
 						
 						//Wipe the locks and the completed operations lists
 						//NOTE: this gets done for B, A, and C operations;
@@ -1359,6 +1415,23 @@ public class MainClass {
 						{
 							//handle commit, abort, and begin
 							scriptAnalyzer(currenttp.scriptNum, nxtop, currenttp.isProcess);
+							
+							if(split[0].equals("C") || currenttp.isProcess)
+							{
+								CommittedTransactions += currenttp.completedOperations.size();
+								for (int m = 0; m < currenttp.completedOperations.size(); m++)
+								{
+									if(currenttp.completedOperations.get(m).split(" ")[0].equals("D") ||
+											currenttp.completedOperations.get(m).split(" ")[0].equals("I"))
+									{
+										WriteOperations += 1;
+									}
+									else
+									{
+										ReadOperations += 1;
+									}
+								}
+							}
 							
 							//Wipe the locks and the completed operations lists
 							//NOTE: this gets done for B, A, and C operations;
