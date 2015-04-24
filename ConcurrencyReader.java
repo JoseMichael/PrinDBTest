@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class ConcurrencyReader
 {
-	public int checkForDataAvailability(String operation, boolean isProcess,List<TransProc> tpList,int currentTransactionNumber )
+	public int checkForDataAvailability(String operation, boolean isProcess,List<TransProc> tpList,int currentTransactionNumber, WaitForGraph wfg )
 	{
 		//Jesse reads the operation, defines if it is Process or a Transaction using the boolean field isProcess
 		//After, an operation acquires a lock on a specific data item, it should add an object of LockItem in the List<LockItems> in TransProc
@@ -19,7 +19,7 @@ public class ConcurrencyReader
 						  //a. For I,R: Fill up the Id, name, phone
 		String split[]= StringUtils.split(operation," (,)");
 		String TableName=split[1];
-		int flag=0;
+		int flag=0,newFlag=0;
 		if(isProcess==true)
 		{
 			if(split[0].equals('I'))
@@ -44,11 +44,40 @@ public class ConcurrencyReader
 										if(currentTransactionNumber!=tp.scriptNum)
 										{											
 											flag=1;
-										//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
+											break;
 										}
-										else
-											flag=-1;
-										break;
+										else // if same operation already exists in the same process before.
+										{
+											int thisIndex= lockIndex;
+											for(int newCounter=thisIndex; newCounter<LockList.size(); newCounter++)
+											{
+												LockItems newItem=new LockItems();
+												if(newItem.operation.equals("D") && newItem.TableName.equals(TableName))
+												{
+													//flag=0;
+													newFlag=1;
+													break;
+												}
+											}
+											if(newFlag==0)
+												flag=-1;
+											break;
+										}							
 									}
 								}							
 							}
@@ -60,13 +89,32 @@ public class ConcurrencyReader
 										if(currentTransactionNumber!=tp.scriptNum)
 										{											
 											flag=1;
-										//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
+											
 											break;
 										}//What if script is same?
-										
+										else
+										{
+											//flag=0;
+											newFlag=1;
+											break;
+										}
 									}
-								}
-								
+								}								
 						}
 					}
 					else //Transaction
@@ -82,7 +130,22 @@ public class ConcurrencyReader
 									if(id==Integer.parseInt(split[2]))
 									{																											
 										flag=1;
-										//setLink(currentTransactionNumber,tp.scriptNum);
+										wfg.setLink(currentTransactionNumber,tp.scriptNum);
+										ArrayList<Integer> deadlockList= wfg.findDeadlock();
+										if(deadlockList.size()>0)
+										{
+											Random myRandomizer = new Random();
+											int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+											wfg.resetNode(index);
+											for(TransProc k:tpList)
+											{
+												if(k.scriptNum==currentTransactionNumber)
+												{
+													k.skipToTransactionEnd();
+												}
+											}
+										}
+									
 										break;
 									}
 								}							
@@ -93,7 +156,21 @@ public class ConcurrencyReader
 									if(lock.TableName.equals(TableName))
 									{
 										flag=1;
-										//setLink(currentTransactionNumber,tp.scriptNum);
+										wfg.setLink(currentTransactionNumber,tp.scriptNum);
+										ArrayList<Integer> deadlockList= wfg.findDeadlock();
+										if(deadlockList.size()>0)
+										{
+											Random myRandomizer = new Random();
+											int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+											wfg.resetNode(index);
+											for(TransProc k:tpList)
+											{
+												if(k.scriptNum==currentTransactionNumber)
+												{
+													k.skipToTransactionEnd();
+												}
+											}
+										}
 										break;
 									}
 								}	
@@ -106,7 +183,21 @@ public class ConcurrencyReader
 											if(id==Integer.parseInt(split[2]))
 											{										
 												flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}
 										}
@@ -125,7 +216,21 @@ public class ConcurrencyReader
 												if(areaCode==Integer.parseInt(ph[0]))
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
 													break;
 												}
 										    }
@@ -144,7 +249,21 @@ public class ConcurrencyReader
 													if(areaCode==Integer.parseInt(ph[0]))
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;
 													}
 											    }
@@ -152,7 +271,7 @@ public class ConcurrencyReader
 						}
 					}
 					
-					if(flag!=0)
+					if(flag!=0 || newFlag==1)
 						break;
 				}
 			}
@@ -178,7 +297,21 @@ public class ConcurrencyReader
 											if(currentTransactionNumber!=tp.scriptNum)
 											{											
 												flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}
 											
@@ -193,7 +326,21 @@ public class ConcurrencyReader
 											if(currentTransactionNumber!=tp.scriptNum)
 											{											
 												flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}
 										}
@@ -213,7 +360,21 @@ public class ConcurrencyReader
 										if(id==Integer.parseInt(split[2]))
 										{											
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;
 										}
 									}
@@ -224,7 +385,21 @@ public class ConcurrencyReader
 										if(lock.TableName.equals(TableName))
 										{
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;
 										}
 									}
@@ -253,10 +428,29 @@ public class ConcurrencyReader
 											if(currentTransactionNumber!=tp.scriptNum)
 											{											
 												flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
+												break;
+											}//if same process has an Insert on that table
+											else
+											{
+												//flag=0;
+												newFlag=1;
 												break;
 											}
-											
 										}
 									}
 									else
@@ -267,11 +461,41 @@ public class ConcurrencyReader
 												if(currentTransactionNumber!=tp.scriptNum)
 												{											
 													flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
+													break;
 												}
 												else
-													flag=-1;
-												break;
+												{
+													//flag=-1;
+													int thisIndex= lockIndex;
+													for(int newCounter=thisIndex; newCounter<LockList.size(); newCounter++)
+													{
+														LockItems newItem=new LockItems();
+														if(newItem.operation.equals("I") && newItem.TableName.equals(TableName))
+														{
+															//flag=0;
+															newFlag=1;
+															break;
+														}
+													}
+													if(newFlag==0)
+														flag=-1;
+													break;
+												}												
 											}
 										}										
 								}
@@ -286,7 +510,21 @@ public class ConcurrencyReader
 										if(lock.TableName.equals(TableName))
 										{
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;
 										}
 									}
@@ -296,7 +534,21 @@ public class ConcurrencyReader
 											if(lock.TableName.equals(TableName))
 											{
 												flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}
 										}
@@ -306,7 +558,21 @@ public class ConcurrencyReader
 												if(lock.TableName.equals(TableName))
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
 													break;
 												}
 											}
@@ -316,7 +582,21 @@ public class ConcurrencyReader
 													if(lock.TableName.equals(TableName))
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;
 													}
 												}
@@ -326,13 +606,27 @@ public class ConcurrencyReader
 														if(lock.TableName.equals(TableName))
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;
 														}
 													}										
 								}								
 							}
-							if(flag!=0)
+							if(flag!=0 || newFlag==1)
 								break;
 						}
 					}
@@ -363,7 +657,21 @@ public class ConcurrencyReader
 													if(currentTransactionNumber!=tp.scriptNum)
 													{											
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;
 													}																							
 												}
@@ -377,7 +685,21 @@ public class ConcurrencyReader
 													if(currentTransactionNumber!=tp.scriptNum)
 													{											
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;
 													}																																				
 												}
@@ -402,7 +724,21 @@ public class ConcurrencyReader
 												if(areaCode==Integer.parseInt(ph[0]))
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
 													break;																																			
 												}
 											}
@@ -413,7 +749,21 @@ public class ConcurrencyReader
 												if(lock.TableName.equals(TableName))
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
 													break;																																																	
 												}
 											}	
@@ -450,7 +800,21 @@ public class ConcurrencyReader
 														if(currentTransactionNumber!=tp.scriptNum)
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;	
 														}																																	
 													}
@@ -464,7 +828,21 @@ public class ConcurrencyReader
 														if(currentTransactionNumber!=tp.scriptNum)
 														{											
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;
 														}																																				
 													}
@@ -491,7 +869,21 @@ public class ConcurrencyReader
 														if(areaCode==Integer.parseInt(ph[0]))
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;																																			
 														}
 													}
@@ -502,7 +894,21 @@ public class ConcurrencyReader
 														if(lock.TableName.equals(TableName))
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;																																																	
 														}
 													}
@@ -535,7 +941,21 @@ public class ConcurrencyReader
 									if(id==Integer.parseInt(split[2]))
 									{									
 										flag=1;
-										//setLink(currentTransactionNumber,tp.scriptNum);
+										wfg.setLink(currentTransactionNumber,tp.scriptNum);
+										ArrayList<Integer> deadlockList= wfg.findDeadlock();
+										if(deadlockList.size()>0)
+										{
+											Random myRandomizer = new Random();
+											int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+											wfg.resetNode(index);
+											for(TransProc k:tpList)
+											{
+												if(k.scriptNum==currentTransactionNumber)
+												{
+													k.skipToTransactionEnd();
+												}
+											}
+										}
 										break;
 									}
 								}
@@ -546,7 +966,21 @@ public class ConcurrencyReader
 									if(lock.TableName.equals(TableName))
 									{
 										flag=1;
-										//setLink(currentTransactionNumber,tp.scriptNum);
+										wfg.setLink(currentTransactionNumber,tp.scriptNum);
+										ArrayList<Integer> deadlockList= wfg.findDeadlock();
+										if(deadlockList.size()>0)
+										{
+											Random myRandomizer = new Random();
+											int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+											wfg.resetNode(index);
+											for(TransProc k:tpList)
+											{
+												if(k.scriptNum==currentTransactionNumber)
+												{
+													k.skipToTransactionEnd();
+												}
+											}
+										}
 										break;
 									}
 								}
@@ -567,11 +1001,41 @@ public class ConcurrencyReader
 										if(currentTransactionNumber!=tp.scriptNum)
 										{
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
+											break;
 										}
 										else
-											flag=-1;
-										break;
+										{
+											int thisIndex= lockIndex;
+											for(int newCounter=thisIndex; newCounter<LockList.size(); newCounter++)
+											{
+												LockItems newItem=new LockItems();
+												if(newItem.operation.equals("D") && newItem.TableName.equals(TableName))
+												{
+													//flag=0;
+													newFlag=1;
+													break;
+												}
+											}
+											if(newFlag==0)
+												flag=-1;
+											break;
+										}
+										
 									}
 								}
 							}
@@ -583,14 +1047,33 @@ public class ConcurrencyReader
 										if(currentTransactionNumber!=tp.scriptNum)
 										{
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;
 										}//What if same transaction?
+										else
+										{
+											newFlag=1;
+											break;
+										}
 									}
 								}
 						}
 					}
-					if(flag!=0)
+					if(flag!=0 || newFlag==1)
 						break;
 				}
 			}
@@ -614,7 +1097,21 @@ public class ConcurrencyReader
 										if(id==Integer.parseInt(split[2]))
 										{			
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;																			
 										}
 									}
@@ -625,7 +1122,21 @@ public class ConcurrencyReader
 										if(lock.TableName.equals(TableName))
 										{
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;
 										}
 									}
@@ -646,7 +1157,21 @@ public class ConcurrencyReader
 											if(currentTransactionNumber!=tp.scriptNum)
 											{
 												flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}
 										}
@@ -661,7 +1186,21 @@ public class ConcurrencyReader
 											if(currentTransactionNumber!=tp.scriptNum)
 											{
 												flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}//Reader should check if same transaction has a delete operation on the same table
 										}
@@ -689,7 +1228,21 @@ public class ConcurrencyReader
 										if(lock.TableName.equals(TableName))
 										{
 											flag=1;
-											//setLink(currentTransactionNumber,tp.scriptNum);
+											wfg.setLink(currentTransactionNumber,tp.scriptNum);
+											ArrayList<Integer> deadlockList= wfg.findDeadlock();
+											if(deadlockList.size()>0)
+											{
+												Random myRandomizer = new Random();
+												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												wfg.resetNode(index);
+												for(TransProc k:tpList)
+												{
+													if(k.scriptNum==currentTransactionNumber)
+													{
+														k.skipToTransactionEnd();
+													}
+												}
+											}
 											break;
 										}
 									}
@@ -699,7 +1252,21 @@ public class ConcurrencyReader
 											if(lock.TableName.equals(TableName))
 											{
 												flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}
 										}
@@ -717,9 +1284,28 @@ public class ConcurrencyReader
 											if(currentTransactionNumber!=tp.scriptNum)
 											{
 												flag=1;
-												//setLink(currentTransactionNumber,tp.scriptNum);
+												wfg.setLink(currentTransactionNumber,tp.scriptNum);
+												ArrayList<Integer> deadlockList= wfg.findDeadlock();
+												if(deadlockList.size()>0)
+												{
+													Random myRandomizer = new Random();
+													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													wfg.resetNode(index);
+													for(TransProc k:tpList)
+													{
+														if(k.scriptNum==currentTransactionNumber)
+														{
+															k.skipToTransactionEnd();
+														}
+													}
+												}
 												break;
 											}//When scripts are same //The scriptAnalyser should check for the prev insertions on the same table
+											else
+											{
+												newFlag=1;
+												break;
+											}
 										}
 									}
 									else
@@ -730,7 +1316,21 @@ public class ConcurrencyReader
 												if(currentTransactionNumber!=tp.scriptNum)
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
 													break;
 												}//When scripts are same //The scriptAnalyser should check for the prev operations on the same table
 											}
@@ -743,11 +1343,41 @@ public class ConcurrencyReader
 													if(currentTransactionNumber!=tp.scriptNum)
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
+														break;
 													}
 													else
-														flag=-1;
-													break;
+													{
+														//flag=-1;
+														int thisIndex= lockIndex;
+														for(int newCounter=thisIndex; newCounter<LockList.size(); newCounter++)
+														{
+															LockItems newItem=new LockItems();
+															if(newItem.operation.equals("I") && newItem.TableName.equals(TableName))
+															{
+																//flag=0;
+																newFlag=1;
+																break;
+															}
+														}
+														if(newFlag==0)
+															flag=-1;
+														break;
+													}
 												}
 											}
 											else
@@ -758,7 +1388,21 @@ public class ConcurrencyReader
 														if(currentTransactionNumber!=tp.scriptNum)
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;
 														}//ScriptAnalyzer should check for previous M & G
 													}
@@ -771,14 +1415,28 @@ public class ConcurrencyReader
 															if(currentTransactionNumber!=tp.scriptNum)
 															{
 																flag=1;
-																//setLink(currentTransactionNumber,tp.scriptNum);
+																wfg.setLink(currentTransactionNumber,tp.scriptNum);
+																ArrayList<Integer> deadlockList= wfg.findDeadlock();
+																if(deadlockList.size()>0)
+																{
+																	Random myRandomizer = new Random();
+																	int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																	wfg.resetNode(index);
+																	for(TransProc k:tpList)
+																	{
+																		if(k.scriptNum==currentTransactionNumber)
+																		{
+																			k.skipToTransactionEnd();
+																		}
+																	}
+																}
 																break;
 															}//ScriptAnalyzer should check for previous M & G
 														}
 													}
 								}
 							}
-							if(flag!=0)
+							if(flag!=0 ||newFlag==1)
 								break;
 						}
 					}
@@ -807,8 +1465,22 @@ public class ConcurrencyReader
 												if(areaCode==Integer.parseInt(ph[0]))
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
-													break;																																			
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
+													break;																																		
 												}
 											}
 										}
@@ -818,7 +1490,21 @@ public class ConcurrencyReader
 												if(lock.TableName.equals(TableName))
 												{
 													flag=1;
-													//setLink(currentTransactionNumber,tp.scriptNum);
+													wfg.setLink(currentTransactionNumber,tp.scriptNum);
+													ArrayList<Integer> deadlockList= wfg.findDeadlock();
+													if(deadlockList.size()>0)
+													{
+														Random myRandomizer = new Random();
+														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														wfg.resetNode(index);
+														for(TransProc k:tpList)
+														{
+															if(k.scriptNum==currentTransactionNumber)
+															{
+																k.skipToTransactionEnd();
+															}
+														}
+													}
 													break;																																																
 												}
 											}
@@ -844,7 +1530,21 @@ public class ConcurrencyReader
 													if(currentTransactionNumber!=tp.scriptNum)
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;
 													}																																															
 												}
@@ -858,7 +1558,21 @@ public class ConcurrencyReader
 													if(currentTransactionNumber!=tp.scriptNum)
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;
 													}																																																	
 												}
@@ -894,7 +1608,21 @@ public class ConcurrencyReader
 													if(areaCode==Integer.parseInt(ph[0]))
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;																																			
 													}
 												}
@@ -905,7 +1633,21 @@ public class ConcurrencyReader
 													if(lock.TableName.equals(TableName))
 													{
 														flag=1;
-														//setLink(currentTransactionNumber,tp.scriptNum);
+														wfg.setLink(currentTransactionNumber,tp.scriptNum);
+														ArrayList<Integer> deadlockList= wfg.findDeadlock();
+														if(deadlockList.size()>0)
+														{
+															Random myRandomizer = new Random();
+															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															wfg.resetNode(index);
+															for(TransProc k:tpList)
+															{
+																if(k.scriptNum==currentTransactionNumber)
+																{
+																	k.skipToTransactionEnd();
+																}
+															}
+														}
 														break;																																																
 													}
 												}
@@ -931,7 +1673,21 @@ public class ConcurrencyReader
 														if(currentTransactionNumber!=tp.scriptNum)
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;
 														}																																															
 													}
@@ -945,7 +1701,21 @@ public class ConcurrencyReader
 														if(currentTransactionNumber!=tp.scriptNum)
 														{
 															flag=1;
-															//setLink(currentTransactionNumber,tp.scriptNum);
+															wfg.setLink(currentTransactionNumber,tp.scriptNum);
+															ArrayList<Integer> deadlockList= wfg.findDeadlock();
+															if(deadlockList.size()>0)
+															{
+																Random myRandomizer = new Random();
+																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																wfg.resetNode(index);
+																for(TransProc k:tpList)
+																{
+																	if(k.scriptNum==currentTransactionNumber)
+																	{
+																		k.skipToTransactionEnd();
+																	}
+																}
+															}
 															break;
 														}																																																	
 													}
@@ -956,8 +1726,7 @@ public class ConcurrencyReader
 										break;
 								}
 							}
-		}
-		
+		}		
 		return flag;
 	}
 }

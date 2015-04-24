@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 
 /**
@@ -49,5 +50,23 @@ public class TransProc {
 		int index=getIndex();
 		setIndex(index--);
 	}
-	
+
+	public void skipToTransactionEnd() {
+		int indexVal=index;
+		while(true)
+		{
+			String op=script.get(indexVal);
+			StringTokenizer token=new StringTokenizer(op);
+			if(token.hasMoreElements())
+			{
+				if(token.equals("C") || token.equals("A"))
+				{
+					index=indexVal;
+					break;
+				}
+			}
+			indexVal++;
+		}
+		
+	}
 }

@@ -1071,7 +1071,7 @@ public class MainClass {
 			}
 			else
 			{
-				waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.getIndex());
+				waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.getIndex(),wfg);
 			}
 			
 			if (waitforflag == 0)
@@ -1115,7 +1115,29 @@ public class MainClass {
 			else if (waitforflag == 1)
 			{
 				//send to waitfor graph
-				currenttp.decrementScriptPointer();
+				int currIndex=currenttp.getIndex();
+				String tOp= currenttp.script.get(currIndex);
+				String c=String.valueOf(tOp.charAt(0));
+				if(c.equals("C") || c.equals("A"))
+				{
+					scriptAnalyzer(currenttp.scriptNum, "A", currenttp.isProcess);
+					currenttp.completedOperations=null;
+					currenttp.isWaiting=false;
+					currenttp.isProcess=false;
+					
+				}
+				else
+					currenttp.decrementScriptPointer();
+				for(TransProc t:tplist)
+				{
+					if(t.isWaiting)
+					{
+						ArrayList<Integer> lockLinks=new ArrayList<>();
+						lockLinks=wfg.findAllLinksOf(t.scriptNum);
+						if(lockLinks.size()==0)
+							t.isWaiting=false;
+					}
+				}
 			}
 			else if (waitforflag == 2)
 			{
@@ -1150,6 +1172,8 @@ public class MainClass {
 	{
 		ConcurrencyReader cc = new ConcurrencyReader();
 		int waitforflag = 0;
+		ArrayList<Integer> myDeadLockList=new ArrayList<>();
+
 		WaitForGraph wfg = new WaitForGraph();
 		wfg.initWithNumberOfScripts(tplist.size());
 		
@@ -1157,7 +1181,7 @@ public class MainClass {
 		// CODE TO GET RANDOMLY ORDERED LIST BASED ON SIZE OF TRANSPROC LIST
 		int usrseed = rndseed;
 		int listsize = tplist.size();
-		
+		int deadlockCount=0;
 		Random rng = new Random(usrseed);
 		Set<Integer> intset = new LinkedHashSet<Integer>();
 		
@@ -1190,8 +1214,8 @@ public class MainClass {
 					waitforflag = 2;
 				}
 				else
-				{
-					waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.getIndex());
+				{ 	
+					waitforflag = cc.checkForDataAvailability(nxtop, currenttp.isProcess, tplist, currenttp.getIndex(),wfg);
 				}
 				
 				if (waitforflag == 0)
@@ -1234,8 +1258,29 @@ public class MainClass {
 				}
 				else if (waitforflag == 1)
 				{
-					//send to waitfor graph
-					currenttp.decrementScriptPointer();
+					int currIndex=currenttp.getIndex();
+					String tOp= currenttp.script.get(currIndex);
+					String c=String.valueOf(tOp.charAt(0));
+					if(c.equals("C") || c.equals("A"))
+					{
+						scriptAnalyzer(currenttp.scriptNum, "A", currenttp.isProcess);
+						currenttp.completedOperations=null;
+						currenttp.isWaiting=false;
+						currenttp.isProcess=false;
+						
+					}
+					else
+						currenttp.decrementScriptPointer();
+					for(TransProc t:tplist)
+					{
+						if(t.isWaiting)
+						{
+							ArrayList<Integer> lockLinks=new ArrayList<>();
+							lockLinks=wfg.findAllLinksOf(t.scriptNum);
+							if(lockLinks.size()==0)
+								t.isWaiting=false;
+						}
+					}
 				}
 				else if (waitforflag == 2)
 				{
