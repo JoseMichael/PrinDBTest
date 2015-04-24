@@ -391,11 +391,14 @@ public class MainClass {
 		int ID2 = Integer.parseInt(ID);
 		int hashval = ID2%16;
 		DiskPage IDPage = getDiskPage("ID", hashval,tablename);
-		int indexOfThisID = IDPage.indexOf(ID);
+		if(IDPage.values!=null)
+		{
+			int indexOfThisID = IDPage.indexOf(ID);
 			if(indexOfThisID>IDPage.numberOfRecords())
 			{
 				return false;
-			}
+			}	
+		}
 		
 		return true;
 	}
@@ -540,11 +543,18 @@ public class MainClass {
 		{
 			if(!afterCopyContainsDeleteOnTable(TableName, CurrentTransactionNumber))
 			{
-				if(checkForIDInDisk(ID, TableName))
+				
+				//adding code to check for table
+				if(obj.ifTableExists(TableName))
 				{
-					System.out.println("Aborted due to duplicate value in Disk");
-					return;
+					if(checkForIDInDisk(ID, TableName))
+					{
+						System.out.println("Aborted due to duplicate value in Disk");
+						return;
+					}	
 				}
+							
+				
 			}
 		}
 		else
@@ -783,17 +793,22 @@ public class MainClass {
 			 int hashVal = IDval % 16;
 			
 			DiskPage pageWithID = getDiskPage("ID",hashVal,TableName);
-			int numberOfRecords = pageWithID.numberOfRecords(); // this is used to find no. of records in that page
-			DiskPage pageWithName = getDiskPage("Name",hashVal,TableName);
-			DiskPage pageWithNumber = getDiskPage("Phone",hashVal,TableName);
-			int i=pageWithID.indexOf(Integer.toString(IDval));
-			int j=pageWithID.numberOfRecords();
-			if(i!=j)
+			if(pageWithID.numberOfRecords()>0)
 			{
-				String id=pageWithID.getValue(i) ;
-				String name=pageWithName.getValue(i);
-				String phone=pageWithNumber.getValue(i);
-				logWriter("Read : "+ id+", "+ name+", "+phone);
+				int numberOfRecords = pageWithID.numberOfRecords(); // this is used to find no. of records in that page
+				DiskPage pageWithName = getDiskPage("Name",hashVal,TableName);
+				DiskPage pageWithNumber = getDiskPage("Phone",hashVal,TableName);
+				int i=pageWithID.indexOf(Integer.toString(IDval));
+				int j=pageWithID.numberOfRecords();
+				if(i!=j)
+				{
+					String id=pageWithID.getValue(i) ;
+					String name=pageWithName.getValue(i);
+					String phone=pageWithNumber.getValue(i);
+					logWriter("Read : "+ id+", "+ name+", "+phone);
+				}
+				else
+					logWriter("Value does not exist");
 			}
 			else
 				logWriter("Value does not exist");

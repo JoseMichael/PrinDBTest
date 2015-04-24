@@ -1330,6 +1330,7 @@ public class WriteToDisk {
 			else
 			{
 				//Return null if the table does not exist
+				/*returnList.add("AAA");
 				returnList.add("AAA");
 				returnList.add("AAA");
 				returnList.add("AAA");
@@ -1340,8 +1341,8 @@ public class WriteToDisk {
 				returnList.add("AAA");
 				returnList.add("AAA");
 				returnList.add("AAA");
-				returnList.add("AAA");
-				returnList.add("AAA");
+				returnList.add("AAA");*/
+				return null;
 				
 			}		
 			
@@ -1351,6 +1352,17 @@ public class WriteToDisk {
 		}
 				
 		return returnList;
+	}
+	
+	public boolean ifTableExists(String TableName)
+	{
+		boolean response=false;
+		if(tableName.contains(TableName.toUpperCase()))
+		{
+			response=true;
+		}
+		
+		return response;
 	}
 	
 	public void insertMMRowStorePages(String TableName, MMRowStorePages page,MetaMMR MetaRows)
