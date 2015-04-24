@@ -865,6 +865,7 @@ public class MainClass {
 		    		AfterImages.set(i, p);
 		    		
 		    	}
+		    	logWriter("Transaction Aborted on script number "+CurrentTransactionNumber);
 		    	//ABORT
 		    	//if(tp.isProcess)
 		    	//{
@@ -889,6 +890,7 @@ public class MainClass {
 		    		AfterImages.set(i, p);
 		    		
 		    	}
+		    	logWriter("Transaction Committed on script number "+CurrentTransactionNumber);
 		    }
 		  }
 		  lineScanner.close();
@@ -1215,8 +1217,16 @@ public class MainClass {
 					if (split[0].equals("B"))
 					{
 						currenttp.completedOperations.add(nxtop);
-						if(split[1].equals("0")) {currenttp.isProcess = true;}
-						else {currenttp.isProcess = false;}
+						if(split[1].equals("0"))
+						{
+							currenttp.isProcess = true;
+							logWriter("Process begins on script number "+CurrentTransactionNumber);
+							}
+						else
+						{
+							currenttp.isProcess = false;
+							logWriter("Transaction begins on script number "+CurrentTransactionNumber);
+							}
 					}
 					else
 					{
