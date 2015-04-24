@@ -507,6 +507,26 @@ public class MainClass {
 	
 	public void insertIntoTable(String ID, String Name, String PhoneNo, String TableName, int tpid)
 	{
+		
+		//adding code to check if ID is there in main memory or after copy
+		Schema objInMM = checkIfIdExistsInMemoryOrAfterCopy(TableName, Integer.parseInt(ID));
+		if(objInMM==null)
+		{
+			if(!afterCopyContainsDeleteOnTable(TableName, CurrentTransactionNumber))
+			{
+				if(checkForIDInDisk(ID, TableName))
+				{
+					System.out.println("Aborted due to duplicate value in Disk");
+					return;
+				}
+			}
+		}
+		else
+		{
+			System.out.println("Aborted due to duplicate value in Memory");
+			return;
+		}
+		
 		//this snippet of code will either find a page with inserts or get a new page
 		int InsertPagePos = findPageWithInserts();
 		if(InsertPagePos==-1)
