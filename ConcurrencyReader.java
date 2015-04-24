@@ -1,13 +1,27 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class ConcurrencyReader
 {
+	
+	public void logWriter(String logentry)
+	{
+		try(PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("D:\\DBTest\\logfile.txt", true)))) {
+		    out.println(logentry);
+		}catch (IOException e) {
+		    //exception handling left as an exercise for the reader
+		}
+	}
+	
 	public int checkForDataAvailability(String operation, boolean isProcess,List<TransProc> tpList,int currentTransactionNumber, WaitForGraph wfg )
 	{
 		//Jesse reads the operation, defines if it is Process or a Transaction using the boolean field isProcess
@@ -50,6 +64,7 @@ public class ConcurrencyReader
 											{
 												Random myRandomizer = new Random();
 												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												logWriter("Deadlock found. Aborting transaction on script "+index+".");
 												wfg.resetNode(index);
 												for(TransProc k:tpList)
 												{
@@ -96,6 +111,7 @@ public class ConcurrencyReader
 											{
 												Random myRandomizer = new Random();
 												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												logWriter("Deadlock found. Aborting transaction on script "+index+".");
 												wfg.resetNode(index);
 												for(TransProc k:tpList)
 												{
@@ -138,6 +154,7 @@ public class ConcurrencyReader
 										{
 											Random myRandomizer = new Random();
 											int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+											logWriter("Deadlock found. Aborting transaction on script "+index+".");
 											wfg.resetNode(index);
 											for(TransProc k:tpList)
 											{
@@ -165,6 +182,7 @@ public class ConcurrencyReader
 										{
 											Random myRandomizer = new Random();
 											int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+											logWriter("Deadlock found. Aborting transaction on script "+index+".");
 											wfg.resetNode(index);
 											for(TransProc k:tpList)
 											{
@@ -193,6 +211,7 @@ public class ConcurrencyReader
 												{
 													Random myRandomizer = new Random();
 													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													logWriter("Deadlock found. Aborting transaction on script "+index+".");
 													wfg.resetNode(index);
 													for(TransProc k:tpList)
 													{
@@ -227,6 +246,7 @@ public class ConcurrencyReader
 													{
 														Random myRandomizer = new Random();
 														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														logWriter("Deadlock found. Aborting transaction on script "+index+".");
 														wfg.resetNode(index);
 														for(TransProc k:tpList)
 														{
@@ -261,6 +281,7 @@ public class ConcurrencyReader
 														{
 															Random myRandomizer = new Random();
 															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															logWriter("Deadlock found. Aborting transaction on script "+index+".");
 															wfg.resetNode(index);
 															for(TransProc k:tpList)
 															{
@@ -310,6 +331,7 @@ public class ConcurrencyReader
 												{
 													Random myRandomizer = new Random();
 													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													logWriter("Deadlock found. Aborting transaction on script "+index+".");
 													wfg.resetNode(index);
 													for(TransProc k:tpList)
 													{
@@ -375,6 +397,7 @@ public class ConcurrencyReader
 											{
 												Random myRandomizer = new Random();
 												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												logWriter("Deadlock found. Aborting transaction on script "+index+".");
 												wfg.resetNode(index);
 												for(TransProc k:tpList)
 												{
@@ -401,6 +424,7 @@ public class ConcurrencyReader
 											{
 												Random myRandomizer = new Random();
 												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												logWriter("Deadlock found. Aborting transaction on script "+index+".");
 												wfg.resetNode(index);
 												for(TransProc k:tpList)
 												{
@@ -445,6 +469,7 @@ public class ConcurrencyReader
 												{
 													Random myRandomizer = new Random();
 													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													logWriter("Deadlock found. Aborting transaction on script "+index+".");
 													wfg.resetNode(index);
 													for(TransProc k:tpList)
 													{
@@ -479,6 +504,7 @@ public class ConcurrencyReader
 													{
 														Random myRandomizer = new Random();
 														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														logWriter("Deadlock found. Aborting transaction on script "+index+".");
 														wfg.resetNode(index);
 														for(TransProc k:tpList)
 														{
@@ -529,6 +555,7 @@ public class ConcurrencyReader
 											{
 												Random myRandomizer = new Random();
 												int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+												logWriter("Deadlock found. Aborting transaction on script "+index+".");
 												wfg.resetNode(index);
 												for(TransProc k:tpList)
 												{
@@ -554,6 +581,7 @@ public class ConcurrencyReader
 												{
 													Random myRandomizer = new Random();
 													int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+													logWriter("Deadlock found. Aborting transaction on script "+index+".");
 													wfg.resetNode(index);
 													for(TransProc k:tpList)
 													{
@@ -579,6 +607,7 @@ public class ConcurrencyReader
 													{
 														Random myRandomizer = new Random();
 														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														logWriter("Deadlock found. Aborting transaction on script "+index+".");
 														wfg.resetNode(index);
 														for(TransProc k:tpList)
 														{
@@ -604,6 +633,7 @@ public class ConcurrencyReader
 														{
 															Random myRandomizer = new Random();
 															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															logWriter("Deadlock found. Aborting transaction on script "+index+".");
 															wfg.resetNode(index);
 															for(TransProc k:tpList)
 															{
@@ -629,6 +659,7 @@ public class ConcurrencyReader
 															{
 																Random myRandomizer = new Random();
 																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																logWriter("Deadlock found. Aborting transaction on script "+index+".");
 																wfg.resetNode(index);
 																for(TransProc k:tpList)
 																{
@@ -681,6 +712,7 @@ public class ConcurrencyReader
 														{
 															Random myRandomizer = new Random();
 															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															logWriter("Deadlock found. Aborting transaction on script "+index+".");
 															wfg.resetNode(index);
 															for(TransProc k:tpList)
 															{
@@ -710,6 +742,7 @@ public class ConcurrencyReader
 														{
 															Random myRandomizer = new Random();
 															int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+															logWriter("Deadlock found. Aborting transaction on script "+index+".");
 															wfg.resetNode(index);
 															for(TransProc k:tpList)
 															{
@@ -750,6 +783,7 @@ public class ConcurrencyReader
 													{
 														Random myRandomizer = new Random();
 														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														logWriter("Deadlock found. Aborting transaction on script "+index+".");
 														wfg.resetNode(index);
 														for(TransProc k:tpList)
 														{
@@ -776,6 +810,7 @@ public class ConcurrencyReader
 													{
 														Random myRandomizer = new Random();
 														int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+														logWriter("Deadlock found. Aborting transaction on script "+index+".");
 														wfg.resetNode(index);
 														for(TransProc k:tpList)
 														{
@@ -828,6 +863,7 @@ public class ConcurrencyReader
 															{
 																Random myRandomizer = new Random();
 																int index =deadlockList.get(myRandomizer.nextInt(deadlockList.size()));
+																logWriter("Deadlock found. Aborting transaction on script "+index+".");
 																wfg.resetNode(index);
 																for(TransProc k:tpList)
 																{
