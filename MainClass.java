@@ -148,7 +148,7 @@ public class MainClass {
 			String Telephone = p.PhoneNo[RecordNumbersThatHaveMarkedTrans[j]];
 			
 			if(ChoiceVariable==1)
-				sendOneTupleToDisk(ID, Name, Telephone); //send the found tuple to the disk
+				sendOneTupleToDisk(p.TableName[RecordNumbersThatHaveMarkedTrans[j]], ID, Name, Telephone); //send the found tuple to the disk
 			
 			p.ID[RecordNumbersThatHaveMarkedTrans[j]] = null;
 			p.Name[RecordNumbersThatHaveMarkedTrans[j]] = null;
@@ -374,9 +374,9 @@ public class MainClass {
 		return true;
 	}
 	
-	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
+	public void sendOneTupleToDisk(String TableName, String ID, String Name, String Telephone)
 	{//TODO implement this
-		obj.insertRow("",Integer.parseInt(ID), Name, Telephone);
+		obj.insertRow(TableName,Integer.parseInt(ID), Name, Telephone);
 	}
 	
 	public void logWriter(String logentry)
