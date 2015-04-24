@@ -639,10 +639,12 @@ public class MainClass {
 	}
 	
 	//Checks if the given Id exists in the memory or the after copy
-	public boolean checkIfIdExistsInMemoryOrAfterCopy(String TableName, int Id)
+	public Schema checkIfIdExistsInMemoryOrAfterCopy(String TableName, int Id)
 	{
 		
 		boolean response=false;
+		Schema sch=new Schema();
+		sch=null;
 		for(int i=0; i<RS.length; i++)
 		{
 			for(int j=0; j<RS[i].ID.length; j++)
@@ -653,6 +655,9 @@ public class MainClass {
 				if(RS[i].TransactionNumber[i]==CurrentTransactionNumber && RS[i].TableName[j].equals(TableName) && RS[i].ID[j].equals(Integer.toString(Id)))
 				{
 					response=true;
+					sch.setId(Integer.parseInt(RS[i].ID[j]));
+					sch.setName(RS[i].Name[j]);
+					sch.setPhone(RS[i].PhoneNo[j]);
 					break;
 				}
 			} //this part of the code goes through all the row store pages and holds records with a particular trans no
@@ -673,6 +678,9 @@ public class MainClass {
 					if(p.TransactionNumber[i]==CurrentTransactionNumber && p.TableName[j].equals(TableName) && p.ID.equals(Integer.toString(Id)) )
 					{
 						response=true;
+						sch.setId(Integer.parseInt(p.ID[j]));
+						sch.setName(p.Name[j]);
+						sch.setPhone(p.PhoneNo[j]);
 						break;
 					}
 				} //this part of the code goes through all the afterimages and holds records with a particular trans no
@@ -681,7 +689,7 @@ public class MainClass {
 			}
 		}
 		
-		return response;
+		return sch;
 	}
 	
 	public void retrieveWithID(int IDval, String TableName, int tpid) //IDval is set as int here
@@ -690,38 +698,42 @@ public class MainClass {
 		AnsPage = new MMRowStorePages();
 		AnsPageCount = 0;
 		
-		
-		
-		int hashVal = IDval % 16;
-		DiskPage pageWithID = getDiskPage("ID",hashVal,TableName);
-		int numberOfRecords = pageWithID.numberOfRecords(); // this is used to find no. of records in that page
-		DiskPage pageWithName = getDiskPage("Name",hashVal,TableName);
-		DiskPage pageWithNumber = getDiskPage("Phone",hashVal,TableName);
-		
-		 
-		while(numberOfRecords > recordCounter)
+		Schema schema= checkIfIdExistsInMemoryOrAfterCopy(TableName, IDval);
+		if(schema==null)
 		{
-			int initPage = findPageToReplace();
-			/*if(initPage>RS.length)
-				break; //this is used to ensure that once all the pages are full the code exits
-				this piece of code was made redundant as I used time to swap pages */
-				
-			RS[initPage] = new MMRowStorePages();
-			logWriter("SWAP IN T-"+TableName+" P-"+initPage+" B-"+hashVal);
-			fillPage(RS[initPage],pageWithID,pageWithName,pageWithNumber,IDval,initPage);
-			//initPage ++;
+			int hashVal = IDval % 16;
+			DiskPage pageWithID = getDiskPage("ID",hashVal,TableName);
+			int numberOfRecords = pageWithID.numberOfRecords(); // this is used to find no. of records in that page
+			DiskPage pageWithName = getDiskPage("Name",hashVal,TableName);
+			DiskPage pageWithNumber = getDiskPage("Phone",hashVal,TableName);
 			
+			 
+			while(numberOfRecords > recordCounter)
+			{
+				int initPage = findPageToReplace();
+				/*if(initPage>RS.length)
+					break; //this is used to ensure that once all the pages are full the code exits
+					this piece of code was made redundant as I used time to swap pages */
+					
+				RS[initPage] = new MMRowStorePages();
+				logWriter("SWAP IN T-"+TableName+" P-"+initPage+" B-"+hashVal);
+				fillPage(RS[initPage],pageWithID,pageWithName,pageWithNumber,IDval,initPage);
+				//initPage ++;
+				
+			}
+			int AnsPagePos = findPageToReplace(); //this var will decide where the ans page will reside
+			RS[AnsPagePos] = AnsPage;
+			updateCalendar();
+			pgDates[AnsPagePos] = sdf.format(cal.getTime());
+			AnsPage.displayRows();
+			if(AnsPage.ID[0]==null)
+				logWriter("Value does not exist");
+			else
+				logWriter("Read : "+AnsPage.ID[0]+", "+AnsPage.Name[0]+", "+AnsPage.PhoneNo[0]);
+
 		}
-		int AnsPagePos = findPageToReplace(); //this var will decide where the ans page will reside
-		RS[AnsPagePos] = AnsPage;
-		updateCalendar();
-		pgDates[AnsPagePos] = sdf.format(cal.getTime());
-		AnsPage.displayRows();
-		if(AnsPage.ID[0]==null)
-			logWriter("Value does not exist");
-		else
-			logWriter("Read : "+AnsPage.ID[0]+", "+AnsPage.Name[0]+", "+AnsPage.PhoneNo[0]);
 		
+				
 	}
 
 	
