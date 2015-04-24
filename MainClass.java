@@ -296,6 +296,8 @@ public class MainClass {
 		return count;
 		
 	}
+	
+	
 	public boolean pageContainsTransID(MMRowStorePages p,int TransNo)
 	{//this function checks if a particular page has ANY records with transaction ID TransNo
 		for(int i=0; i<p.ID.length; i++)
@@ -356,8 +358,20 @@ public class MainClass {
 		RS[pos] = new MMRowStorePages();
 		MetaRows[pos] = new MetaMMR();
 		pgDates[pos] = "0";
+	}
+
+	public boolean checkForIDInDisk(String ID, String tablename)
+	{//checks if ID is present in that bucket
+		int ID2 = Integer.parseInt(ID);
+		int hashval = ID2%16;
+		DiskPage IDPage = getDiskPage("ID", hashval,tablename);
+		int indexOfThisID = IDPage.indexOf(ID);
+			if(indexOfThisID>IDPage.numberOfRecords())
+			{
+				return false;
+			}
 		
-		
+		return true;
 	}
 	
 	public void sendOneTupleToDisk(String ID, String Name, String Telephone)
@@ -784,6 +798,8 @@ public class MainClass {
 		    	String tableName= lineScanner.next();
 		    	String AreaCode = lineScanner.next();
 		    	
+		    	//int gcount = colstoreobj.GQuery(tableName, AreaCode, numberOfPages, obj);
+		    	//gcount += getGsInTheRecords(AreaCode, getAllRecordsOfTrans(tpid));
 		    	int gcount= executeOperationOnG(tableName,AreaCode);
 		    	String output = "GCount: " + Integer.toString(gcount);
 				logWriter(output);
