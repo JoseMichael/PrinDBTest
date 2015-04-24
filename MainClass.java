@@ -840,6 +840,14 @@ public class MainClass {
 		    }
 		    else if(token.equals("A"))
 		    {
+		    	
+		    	for(int i=0; i<AfterImages.size(); i++)
+		    	{
+		    		MMRowStorePages p = AfterImages.get(i);
+		    		p = flushTransFromAfterImage(CurrentTransactionNumber, p, 0);
+		    		AfterImages.set(i, p);
+		    		
+		    	}
 		    	//ABORT
 		    	//if(tp.isProcess)
 		    	//{
@@ -854,6 +862,14 @@ public class MainClass {
 		    {
 		    	//COMMIT
 		    	//FLUSH TO DISK
+		    	
+		    	for(int i=0; i<AfterImages.size(); i++)
+		    	{
+		    		MMRowStorePages p = AfterImages.get(i);
+		    		p = flushTransFromAfterImage(CurrentTransactionNumber, p, 1);
+		    		AfterImages.set(i, p);
+		    		
+		    	}
 		    }
 		  }
 		  lineScanner.close();
